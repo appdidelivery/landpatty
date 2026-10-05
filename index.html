@@ -1,20 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-NKZC9T42');</script>
-<!-- End Google Tag Manager -->
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#801A39">
     <title>Salão da Patty - Sua Beleza em Outro Nível</title>
 
     <meta name="description" content="No Salão da Patty, transformamos sua beleza e elevamos sua autoestima. Agende seu horário e viva uma experiência única de luxo e cuidado em São José/SC.">
     <meta name="author" content="Salão da Patty | Desenvolvido por EyAgencia.com.br">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:type" content="business.business">
+    <meta property="og:title" content="Salão da Patty | Centro de Beleza em São José/SC">
+    <meta property="og:description" content="Cabelos, unhas, cílios, estética, maquiagem, depilação e terapias em São José/SC. Agende seu atendimento no Salão da Patty.">
+    <meta property="og:url" content="https://www.pattycentrodebeleza.com.br/">
+    <meta property="og:image" content="https://www.pattycentrodebeleza.com.br/imagens/hero-background.jpg">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="imagens/logo-patty-salao.png" type="image/png">
+    <link rel="canonical" href="https://www.pattycentrodebeleza.com.br/">
+    <link rel="alternate" type="text/plain" href="llms.txt" title="Resumo oficial para agentes de IA">
+    <link rel="preload" as="image" href="imagens/hero-background.jpg" fetchpriority="high">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -278,8 +284,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKZC9T42"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
     <header class="main-header" id="mainHeader">
         <div class="container header-container">
@@ -308,18 +312,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <p>Mais que um salão, somos um espaço de transformação. Aqui, cada detalhe é pensado para celebrar sua individualidade, realçar sua força e elevar sua autoestima.</p>
                 </div>
                 
-                <form id="agendamentoForm" class="hero-form fade-in">
+                <form id="agendamentoForm" class="hero-form fade-in" toolname="agendar_salao_patty" tooldescription="Prepara um pedido de agendamento no Salão da Patty e abre a conversa oficial no WhatsApp com o serviço escolhido.">
                     <div class="form-group">
                         <label for="nome">Seu Nome</label>
-                        <input type="text" id="nome" name="nome" placeholder="Como podemos te chamar?" required>
+                        <input type="text" id="nome" name="nome" autocomplete="name" toolparamdescription="Nome da pessoa que deseja agendar." placeholder="Como podemos te chamar?" required>
                     </div>
                     <div class="form-group">
                         <label for="whatsapp">Seu WhatsApp (Opcional)</label>
-                        <input type="tel" id="whatsapp" name="whatsapp" placeholder="Ex: 48999998888">
+                        <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" toolparamdescription="WhatsApp opcional para retorno." placeholder="Ex: 48999998888">
                     </div>
                     <div class="form-group">
                         <label for="servico">Qual serviço você deseja?</label>
-                        <select id="servico" name="servico" required>
+                        <select id="servico" name="servico" toolparamdescription="Serviço de beleza ou bem-estar desejado." required>
                             <option value="">Selecione o serviço...</option>
                             <option value="Cabelos e Cachos">Cabelos e Cachos</option>
                             <option value="Nail Design">Nail Design e Manicure</option>
@@ -345,7 +349,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="services-carousel">
                         
                         <div class="service-card">
-                            <img src="imagens/servico-cabelos.jpg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Cabelos+e+Cachos'" alt="Cabelos e Cachos" loading="lazy">
+                            <img src="imagens/servico-cabelos.jpg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Cabelos+e+Cachos'" alt="Cabelos e Cachos" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Cabelos & Cachos</h3>
                                 <p>Cortes, coloração e tratamentos especializados para todos os tipos de fios e curvaturas.</p>
@@ -357,7 +361,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Ana Paula nail design.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Nail+Design'" alt="Nail Design" loading="lazy">
+                            <img src="imagens/Ana Paula nail design.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Nail+Design'" alt="Nail Design" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Nail Design & Manicure</h3>
                                 <p>Suas unhas impecáveis com técnicas de alongamento, blindagem e nail art.</p>
@@ -369,7 +373,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Cleo pontes Micropigmentadora e nail design.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Sobrancelhas'" alt="Sobrancelhas" loading="lazy">
+                            <img src="imagens/Cleo pontes Micropigmentadora e nail design.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Sobrancelhas'" alt="Sobrancelhas" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Sobrancelhas & Micro</h3>
                                 <p>Design estratégico e micropigmentação para realçar e emoldurar seu olhar.</p>
@@ -381,7 +385,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Michele.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Cílios'" alt="Lash Design" loading="lazy">
+                            <img src="imagens/Michele.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Cílios'" alt="Lash Design" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Lash Design (Cílios)</h3>
                                 <p>Extensões de cílios com alta durabilidade e naturalidade para um olhar poderoso.</p>
@@ -393,7 +397,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Paula Severo Esteticista.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Estética'" alt="Estética" loading="lazy">
+                            <img src="imagens/Paula Severo Esteticista.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Estética'" alt="Estética" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Estética & Cuidados</h3>
                                 <p>Protocolos avançados de estética facial e corporal para seu bem-estar completo.</p>
@@ -405,7 +409,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Mariana rita Maquiadora.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Maquiagem'" alt="Maquiagem" loading="lazy">
+                            <img src="imagens/Mariana rita Maquiadora.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Maquiagem'" alt="Maquiagem" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Maquiagem Profissional</h3>
                                 <p>Make para eventos, festas e produções que destacam a sua melhor versão.</p>
@@ -417,7 +421,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Aline Fontana.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Depilação'" alt="Depilação" loading="lazy">
+                            <img src="imagens/Aline Fontana.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Depilação'" alt="Depilação" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Depilação</h3>
                                 <p>Técnicas de depilação com cuidado, higiene e conforto para a sua pele.</p>
@@ -429,7 +433,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/servico-massagem.jpg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Terapias+e+Massagem'" alt="Massoterapia e Terapias" loading="lazy">
+                            <img src="imagens/servico-massagem.jpg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Terapias+e+Massagem'" alt="Massoterapia e Terapias" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Massoterapia & Terapias</h3>
                                 <p>Massagem Relaxante, Terapêutica, Drenagem, Ventosaterapia, Reiki, Barras de Access, Cone Hindu e mais.</p>
@@ -452,7 +456,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="team-carousel">
                         
                         <div class="team-card">
-                            <img src="imagens/Patricia Teixeira.jpeg" onerror="this.src='https://placehold.co/400x600/801A39/FFF?text=Patricia'" alt="Patrícia Teixeira" loading="lazy">
+                            <img src="imagens/Patricia Teixeira.jpeg" onerror="this.src='https://placehold.co/400x600/801A39/FFF?text=Patricia'" alt="Patrícia Teixeira" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Patrícia Teixeira</h3>
                                 <p>Cabeleireira & Fundadora</p>
@@ -461,7 +465,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
                         
                         <div class="team-card">
-                            <img src="imagens/Juliana Cabeleireira.jpeg" alt="Juliana Ramos" loading="lazy">
+                            <img src="imagens/Juliana Cabeleireira.jpeg" alt="Juliana Ramos" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Juliana Ramos</h3>
                                 <p>Cabeleireira</p>
@@ -470,7 +474,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Allegra Marques Cabeleireira especialista em cachos.jpeg" alt="Allegra Marques" loading="lazy">
+                            <img src="imagens/Allegra Marques Cabeleireira especialista em cachos.jpeg" alt="Allegra Marques" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Allegra Marques</h3>
                                 <p>Especialista em Cachos</p>
@@ -479,7 +483,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Geraldine Silveira Cabeleireira.jpeg" alt="Geraldine Silveira" loading="lazy">
+                            <img src="imagens/Geraldine Silveira Cabeleireira.jpeg" alt="Geraldine Silveira" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Geraldine Silveira</h3>
                                 <p>Cabeleireira</p>
@@ -488,7 +492,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Maira Perez.jpeg" alt="Maira Pérez" loading="lazy">
+                            <img src="imagens/Maira Perez.jpeg" alt="Maira Pérez" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Maira Pérez</h3>
                                 <p>Cabeleireira</p>
@@ -497,7 +501,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/benedita-rodrigues.jpeg" alt="Benedita Rodrigues" loading="lazy">
+                            <img src="imagens/benedita-rodrigues.jpeg" alt="Benedita Rodrigues" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Benedita Rodrigues</h3>
                                 <p>Cabeleireira completa<br>Mega hair, mechas e cortes<br>Maquiadora & Dermapeeling</p>
@@ -506,7 +510,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Mariana rita Maquiadora.jpeg" alt="Mariana Rita" loading="lazy">
+                            <img src="imagens/Mariana rita Maquiadora.jpeg" alt="Mariana Rita" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Mariana Rita</h3>
                                 <p>Maquiadora</p>
@@ -515,7 +519,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Emanuelle Manicure.jpeg" alt="Emanuelle" loading="lazy">
+                            <img src="imagens/Emanuelle Manicure.jpeg" alt="Emanuelle" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Emanuelle</h3>
                                 <p>Nail Design</p>
@@ -524,7 +528,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/vanya-de-paula.jpeg" alt="Vanya De Paula" loading="lazy">
+                            <img src="imagens/vanya-de-paula.jpeg" alt="Vanya De Paula" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Vanya De Paula</h3>
                                 <p>Manicure<br>Alongamentos e unhas tradicionais</p>
@@ -533,7 +537,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Cleo pontes Micropigmentadora e nail design.jpeg" alt="Cleo Pontes" loading="lazy">
+                            <img src="imagens/Cleo pontes Micropigmentadora e nail design.jpeg" alt="Cleo Pontes" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Cleo Pontes</h3>
                                 <p>Nail Design & Micro</p>
@@ -542,7 +546,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Ana Paula nail design.jpeg" alt="Ana Paula" loading="lazy">
+                            <img src="imagens/Ana Paula nail design.jpeg" alt="Ana Paula" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Ana Paula</h3>
                                 <p>Nail Design & Micro</p>
@@ -551,7 +555,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Ana Clara Recepcionista.jpeg" alt="Ana Clara" loading="lazy">
+                            <img src="imagens/Ana Clara Recepcionista.jpeg" alt="Ana Clara" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Ana Clara</h3>
                                 <p>Recepcionista</p>
@@ -560,7 +564,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Paula Severo Esteticista.jpeg" alt="Paula Severo" loading="lazy">
+                            <img src="imagens/Paula Severo Esteticista.jpeg" alt="Paula Severo" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Paula Severo</h3>
                                 <p>Esteticista</p>
@@ -569,7 +573,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Michele.jpeg" alt="Chele Tavares" loading="lazy">
+                            <img src="imagens/Michele.jpeg" alt="Chele Tavares" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Chele Tavares</h3>
                                 <p>Lash Design</p>
@@ -578,7 +582,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Aline Fontana.jpeg" alt="Aline Fontana" loading="lazy">
+                            <img src="imagens/Aline Fontana.jpeg" alt="Aline Fontana" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Aline Fontana</h3>
                                 <p>Depiladora</p>
@@ -587,7 +591,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Patrick Lima.jpeg" onerror="this.src='https://placehold.co/400x600/801A39/FFF?text=Patrick+Lima'" alt="Patrick Lima" loading="lazy">
+                            <img src="imagens/Patrick Lima.jpeg" onerror="this.src='https://placehold.co/400x600/801A39/FFF?text=Patrick+Lima'" alt="Patrick Lima" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Patrick Lima</h3>
                                 <p>Massoterapeuta & Terapias</p>
@@ -596,7 +600,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Ingrid Goedert Social midia.jpeg" alt="Ingrid Goedert" loading="lazy">
+                            <img src="imagens/Ingrid Goedert Social midia.jpeg" alt="Ingrid Goedert" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Ingrid Goedert</h3>
                                 <p>Social Midia</p>
@@ -614,7 +618,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div class="reviews-carousel fade-in">
                     <div class="review-card">
                         <div class="review-header">
-                            <img src="https://placehold.co/100x100/D4A25C/FFF/png?text=M" alt="Mariana" loading="lazy">
+                            <img src="https://placehold.co/100x100/D4A25C/FFF/png?text=M" alt="Mariana" loading="lazy" decoding="async">
                             <h4>Mariana Costa</h4>
                         </div>
                         <div class="review-stars">⭐⭐⭐⭐⭐</div>
@@ -622,7 +626,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </div>
                      <div class="review-card">
                         <div class="review-header">
-                            <img src="https://placehold.co/100x100/801A39/FFF/png?text=J" alt="Juliana" loading="lazy">
+                            <img src="https://placehold.co/100x100/801A39/FFF/png?text=J" alt="Juliana" loading="lazy" decoding="async">
                             <h4>Juliana Alves</h4>
                         </div>
                         <div class="review-stars">⭐⭐⭐⭐⭐</div>
@@ -630,7 +634,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </div>
                      <div class="review-card">
                         <div class="review-header">
-                            <img src="https://placehold.co/100x100/333/FFF/png?text=R" alt="Renata" loading="lazy">
+                            <img src="https://placehold.co/100x100/333/FFF/png?text=R" alt="Renata" loading="lazy" decoding="async">
                             <h4>Renata Soares</h4>
                         </div>
                         <div class="review-stars">⭐⭐⭐⭐⭐</div>
@@ -668,7 +672,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
-                    <img src="imagens/logo-patty-salao.png" alt="Logo Salão da Patty" class="footer-logo" loading="lazy">
+                    <img src="imagens/logo-patty-salao.png" alt="Logo Salão da Patty" class="footer-logo" loading="lazy" decoding="async">
                     <p>Sua beleza em outro nível. Um espaço dedicado a celebrar sua individualidade.</p>
                 </div>
                 <div class="footer-col">
@@ -702,6 +706,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </a>
 
     <script>
+        function loadDeferredGTM() {
+            if (window.__gtmLoaded) return;
+            window.__gtmLoaded = true;
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+            const gtm = document.createElement('script');
+            gtm.async = true;
+            gtm.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-NKZC9T42';
+            document.head.appendChild(gtm);
+        }
+        window.addEventListener('load', () => setTimeout(loadDeferredGTM, 7000), { once:true });
+        ['pointerdown','keydown'].forEach(evt => window.addEventListener(evt, loadDeferredGTM, { once:true, passive:true }));
+
         document.addEventListener('DOMContentLoaded', () => {
             const menuToggle = document.querySelector('.menu-toggle');
             const mainNav = document.querySelector('.main-nav');
