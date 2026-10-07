@@ -200,7 +200,48 @@
         .service-card-content p { flex-grow: 1; }
 
         /* ---------------------------------- */
-        /* 6. EQUIPE (STORIES CARROSSEL)
+        /* 6. GALERIAS POR SERVIÇO
+        /* ---------------------------------- */
+        .portfolio-section { background: #fff; }
+        .portfolio-intro {
+            max-width: 760px; margin: -28px auto 36px; text-align: center; color: #555;
+        }
+        .service-gallery {
+            background: #fbf7f8; border: 1px solid #eadfe3; border-radius: 20px;
+            padding: 24px; box-shadow: var(--shadow-soft);
+        }
+        .service-gallery-header {
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;
+        }
+        .service-gallery-header h3 { margin: 0; font-size: 1.65rem; }
+        .service-gallery-header p { color: #666; max-width: 760px; }
+        .gallery-grid {
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+        }
+        .gallery-item {
+            position: relative; aspect-ratio: 240 / 426; overflow: hidden;
+            border-radius: 14px; background-image: url('imagens/portfolio/unhas/patty-unhas-01-07.webp');
+            background-repeat: no-repeat; background-size: 100% 700%;
+            box-shadow: 0 8px 22px rgba(0,0,0,.10);
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+        .gallery-item:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.16); }
+        .gallery-item:nth-child(1) { background-position: center 0%; }
+        .gallery-item:nth-child(2) { background-position: center 16.6667%; }
+        .gallery-item:nth-child(3) { background-position: center 33.3333%; }
+        .gallery-item:nth-child(4) { background-position: center 50%; }
+        .gallery-item:nth-child(5) { background-position: center 66.6667%; }
+        .gallery-item:nth-child(6) { background-position: center 83.3333%; }
+        .gallery-item:nth-child(7) { background-position: center 100%; }
+        .gallery-caption {
+            position: absolute; left: 0; right: 0; bottom: 0; padding: 34px 12px 10px;
+            background: linear-gradient(to top, rgba(0,0,0,.72), transparent);
+            color: #fff; font-size: .78rem; font-weight: 600;
+        }
+        .gallery-cta { margin-top: 20px; }
+
+        /* ---------------------------------- */
+        /* 7. EQUIPE (STORIES CARROSSEL)
         /* ---------------------------------- */
         .team-carousel-wrapper { position: relative; }
         .team-carousel {
@@ -349,6 +390,8 @@
             .review-card { flex: 0 0 45%; min-width: 45%; }
             .google-reputation { grid-template-columns: 1.2fr 1fr; }
             .story-card { flex: 0 0 300px; min-width: 300px; }
+            .gallery-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+            .service-gallery-header { flex-direction: row; align-items: flex-end; justify-content: space-between; }
             .trust-proof-grid { grid-template-columns: repeat(3, 1fr); }
             .location-grid { grid-template-columns: 2fr 1.5fr; }
             .footer-grid { grid-template-columns: repeat(3, 1fr); text-align: left; }
@@ -374,6 +417,7 @@
             </button>
             <nav class="main-nav" id="mainNav">
                 <a href="#servicos">Serviços</a>
+                <a href="#galeria">Galeria</a>
                 <a href="#equipe">Equipe</a>
                 <a href="#avaliacoes">Avaliações</a>
                 <a href="#confianca">Confiança</a>
@@ -443,6 +487,7 @@
                             <div class="service-card-content">
                                 <h3>Nail Design & Manicure</h3>
                                 <p>Suas unhas impecáveis com técnicas de alongamento, blindagem e nail art.</p>
+                                <a href="#galeria-unhas" style="color:var(--burgundy);font-weight:600;text-decoration:none;margin-top:10px;">Ver trabalhos reais →</a>
                                 <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20o%20servi%C3%A7o%20de%20Nail%20Design%20e%20Manicure." target="_blank" class="btn-whatsapp-small">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.01 2.002c-5.522 0-9.998 4.477-9.998 9.998 0 1.765.46 3.447 1.285 4.93L2.003 22l5.176-1.284c1.455.787 3.107 1.206 4.83 1.206 5.522 0 10.002-4.477 10.002-10.002S17.532 2.002 12.01 2.002zm5.836 14.542c-.25.702-1.43 1.34-1.996 1.452-.524.103-1.2.22-3.418-.703-2.685-1.118-4.38-3.844-4.512-4.02-.13-.176-1.077-1.434-1.077-2.747 0-1.314.685-1.96 9.32-2.228.24-.183.565-.213.784.316.227.55.77 1.884.84 2.036.07.153.116.33.023.513-.092.183-.14.297-.28.45-.14.153-.298.337-.417.45-.13.13-.264.275-.11.514.15.24 6.678 1.084 1.31 1.75.63.666 1.4 1.42 1.54 1.65.14.23.14.33-.024.514-.165.183-.77 1.08-1.02 1.39z"/></svg>
                                     Agendar Unhas
@@ -522,6 +567,36 @@
                             </div>
                         </div>
 
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="galeria" class="portfolio-section">
+            <div class="container">
+                <h2 class="section-title fade-in">Galerias de Trabalhos Reais</h2>
+                <p class="portfolio-intro fade-in">Resultados de atendimentos realizados no Patty Centro de Beleza, organizados por serviço para você conhecer de perto o estilo e o acabamento do nosso trabalho.</p>
+
+                <div id="galeria-unhas" class="service-gallery fade-in">
+                    <div class="service-gallery-header">
+                        <div>
+                            <h3>Nail Design & Manicure</h3>
+                            <p>Nail arts, esmaltação, francesinha e acabamentos personalizados realizados em clientes do salão.</p>
+                        </div>
+                    </div>
+
+                    <div class="gallery-grid" aria-label="Galeria de Nail Design e Manicure do Patty Centro de Beleza">
+                        <div class="gallery-item" role="img" aria-label="Nail art azul com flores em relevo"><span class="gallery-caption">Nail art floral azul</span></div>
+                        <div class="gallery-item" role="img" aria-label="Nail art nude, amarelo e bordô com poás"><span class="gallery-caption">Nude + poá</span></div>
+                        <div class="gallery-item" role="img" aria-label="Nail art lilás com desenhos florais e detalhes dourados"><span class="gallery-caption">Floral lilás</span></div>
+                        <div class="gallery-item" role="img" aria-label="Unhas vermelhas com acabamento brilhante"><span class="gallery-caption">Vermelho clássico</span></div>
+                        <div class="gallery-item" role="img" aria-label="Unhas com degradê branco azul e lilás"><span class="gallery-caption">Degradê delicado</span></div>
+                        <div class="gallery-item" role="img" aria-label="Unhas nude e marrom com decoração floral dourada"><span class="gallery-caption">Nude floral</span></div>
+                        <div class="gallery-item" role="img" aria-label="Nail art com girassóis e francesinha"><span class="gallery-caption">Girassóis + francesinha</span></div>
+                    </div>
+
+                    <div class="gallery-cta">
+                        <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20vi%20a%20galeria%20de%20Nail%20Design%20no%20site%20e%20gostaria%20de%20agendar%20meu%20hor%C3%A1rio." target="_blank" rel="noopener noreferrer" class="btn-whatsapp-small">Agendar Nail Design</a>
                     </div>
                 </div>
             </div>
@@ -902,6 +977,7 @@
                     <h4>Navegação</h4>
                     <ul>
                         <li><a href="#servicos">Serviços</a></li>
+                        <li><a href="#galeria">Galeria</a></li>
                         <li><a href="#equipe">Equipe</a></li>
                         <li><a href="#avaliacoes">Avaliações</a></li>
                         <li><a href="#confianca">Confiança</a></li>
