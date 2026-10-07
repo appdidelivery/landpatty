@@ -20,13 +20,7 @@
     <link rel="icon" href="imagens/logo-patty-salao.png" type="image/png">
     <link rel="canonical" href="https://www.pattycentrodebeleza.com.br/">
     <link rel="alternate" type="text/plain" href="llms.txt" title="Resumo oficial para agentes de IA">
-    <link rel="preload" as="image" href="imagens/hero-background.jpg" fetchpriority="high">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-    <script type="application/ld+json">
+    <link rel="preload" as="image" href="imagens/hero-background.jpg" fetchpriority="high"><script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@graph": [
@@ -80,8 +74,8 @@
             --text-dark: #333;
             --text-light: #fff;
             
-            --font-heading: 'Playfair Display', serif;
-            --font-body: 'Poppins', sans-serif;
+            --font-heading: Georgia, 'Times New Roman', serif;
+            --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
 
             --shadow-soft: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
             --shadow-medium: 0 10px 40px rgba(0, 0, 0, 0.15);
@@ -335,9 +329,8 @@
 
         .whatsapp-float {
             position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; background-color: #25D366; color: #fff; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 100; animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
+            display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 100;
+        }70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
 
         /* ---------------------------------- */
         /* RESPONSIVIDADE
@@ -383,7 +376,7 @@
         .video-link-card:hover{transform:translateY(-2px)}
         .video-play-icon{width:42px;height:42px;border:1px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;flex:0 0 auto;font-size:15px;padding-left:2px}
         .video-link-copy{display:flex;flex-direction:column;gap:4px}
-        .video-link-copy strong{font-family:'Playfair Display',serif;font-size:1.12rem;line-height:1.1}
+        .video-link-copy strong{font-family:Georgia,'Times New Roman',serif;font-size:1.12rem;line-height:1.1}
         .video-link-copy small{font-size:.82rem;opacity:.88}
         @media(min-width:768px){.video-links-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
         @media(max-width:480px){.video-links-grid{gap:10px}.video-link-card{min-height:125px;padding:16px;flex-direction:column;align-items:flex-start;justify-content:flex-end}.video-play-icon{width:36px;height:36px}.video-link-copy strong{font-size:1rem}}
@@ -394,6 +387,19 @@
         .service-card img{aspect-ratio:16/10;width:100%;height:auto;min-height:220px;max-height:250px;object-fit:cover}
         .video-links-grid{content-visibility:auto}
 
+    
+        /* Mobile-first performance refinements */
+        @media (max-width:767px){
+          section{padding:56px 0}
+          .hero-section{min-height:auto;padding-top:108px;padding-bottom:52px}
+          .hero-grid{gap:34px}
+          .hero-form{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(65,10,28,.72)}
+          .main-header{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(249,249,249,.98)}
+        }
+        @media (prefers-reduced-motion:reduce){
+          *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+        }
+
     </style>
 </head>
 <body>
@@ -403,7 +409,7 @@
         <div class="container header-container">
             <div class="logo">
                 <a href="#hero">
-                    <img src="imagens/logo-patty-salao.png" alt="Logo Salão da Patty">
+                    <img src="imagens/logo-patty-salao.png" width="150" height="62" alt="Logo Salão da Patty">
                 </a>
             </div>
             <button class="menu-toggle" aria-label="Abrir Menu">
@@ -488,7 +494,7 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="https://images.unsplash.com/photo-1777521778743-d152c0404e32?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem fotográfica de referência para design de sobrancelhas" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center 30%;">
+                            <img src="https://images.unsplash.com/photo-1777521778743-d152c0404e32?auto=format&fit=crop&fm=webp&q=52&w=480" alt="Imagem fotográfica de referência para design de sobrancelhas" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center 30%;">
                             <div class="service-card-content">
                                 <h3>Sobrancelhas & Micro</h3>
                                 <p>Design estratégico e micropigmentação para realçar e emoldurar seu olhar.</p>
@@ -500,7 +506,7 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="https://images.unsplash.com/photo-1773680347850-3a8bf8c7ac5d?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem fotográfica de referência para extensão de cílios" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center 48%;">
+                            <img src="https://images.unsplash.com/photo-1773680347850-3a8bf8c7ac5d?auto=format&fit=crop&fm=webp&q=52&w=480" alt="Imagem fotográfica de referência para extensão de cílios" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center 48%;">
                             <div class="service-card-content">
                                 <h3>Lash Design (Cílios)</h3>
                                 <p>Extensões de cílios com alta durabilidade e naturalidade para um olhar poderoso.</p>
@@ -512,7 +518,7 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem fotográfica de referência para estética facial" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center center;">
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&fm=webp&q=52&w=480" alt="Imagem fotográfica de referência para estética facial" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center center;">
                             <div class="service-card-content">
                                 <h3>Estética & Cuidados</h3>
                                 <p>Protocolos avançados de estética facial e corporal para seu bem-estar completo.</p>
@@ -524,7 +530,7 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="https://images.unsplash.com/photo-1771254240529-dbe324f0a401?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem de referência de maquiagem profissional" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center center;">
+                            <img src="https://images.unsplash.com/photo-1771254240529-dbe324f0a401?auto=format&fit=crop&fm=webp&q=52&w=480" width="480" height="300" alt="Imagem de referência de maquiagem profissional" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center center;">
                             <div class="service-card-content">
                                 <h3>Maquiagem Profissional</h3>
                                 <p>Make para eventos, festas e produções que destacam a sua melhor versão.</p>
@@ -536,7 +542,7 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem fotográfica de referência para cuidados corporais e depilação" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center center;">
+                            <img src="https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?auto=format&fit=crop&fm=webp&q=52&w=480" alt="Imagem fotográfica de referência para cuidados corporais e depilação" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center center;">
                             <div class="service-card-content">
                                 <h3>Depilação</h3>
                                 <p>Técnicas de depilação com cuidado, higiene e conforto para a sua pele.</p>
@@ -548,7 +554,7 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem fotográfica de referência para massoterapia" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center center;">
+                            <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&fm=webp&q=52&w=480" alt="Imagem fotográfica de referência para massoterapia" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center center;">
                             <div class="service-card-content">
                                 <h3>Massoterapia & Terapias</h3>
                                 <p>Massagem Relaxante, Terapêutica, Drenagem, Ventosaterapia, Reiki, Barras de Access, Cone Hindu e mais.</p>
@@ -571,7 +577,7 @@
                     <div class="team-carousel">
                         
                         <div class="team-card">
-                            <img src="imagens/Patricia Teixeira.jpeg" onerror="this.src='https://placehold.co/400x600/801A39/FFF?text=Patricia'" alt="Patrícia Teixeira, cabeleireira e fundadora do Patty Centro de Beleza" loading="lazy" decoding="async">
+                            <img src="https://images.weserv.nl/?url=https%3A%2F%2Fwww.pattycentrodebeleza.com.br%2Fimagens%2FPatricia%20Teixeira.jpeg&w=420&h=746&fit=cover&output=webp&q=68" width="420" height="746" onerror="this.src='https://placehold.co/400x600/801A39/FFF?text=Patricia'" alt="Patrícia Teixeira, cabeleireira e fundadora do Patty Centro de Beleza" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Patrícia Teixeira</h3>
                                 <p>Cabeleireira & Fundadora</p>
@@ -580,7 +586,7 @@
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/maira-ramos.jpeg" alt="Maira Ramos, cabeleireira especialista em escova modelada" loading="lazy" decoding="async">
+                            <img src="https://images.weserv.nl/?url=https%3A%2F%2Fwww.pattycentrodebeleza.com.br%2Fimagens%2Fmaira-ramos.jpeg&w=420&h=746&fit=cover&output=webp&q=68" width="420" height="746" alt="Maira Ramos, cabeleireira especialista em escova modelada" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Maira Ramos</h3>
                                 <p>Cabeleireira<br>Especialista em escova modelada</p>
@@ -589,7 +595,7 @@
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/vaneza-regina.jpeg" alt="Vaneza Regina, cabeleireira especialista em alisamento e luzes" loading="lazy" decoding="async">
+                            <img src="https://images.weserv.nl/?url=https%3A%2F%2Fwww.pattycentrodebeleza.com.br%2Fimagens%2Fvaneza-regina.jpeg&w=420&h=746&fit=cover&output=webp&q=68" width="420" height="746" alt="Vaneza Regina, cabeleireira especialista em alisamento e luzes" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Vaneza Regina</h3>
                                 <p>Cabeleireira<br>Especialista em alisamento e luzes</p>
@@ -598,7 +604,7 @@
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/michele-tavares.jpeg" alt="Michele Tavares, lash designer e esteticista" loading="lazy" decoding="async">
+                            <img src="https://images.weserv.nl/?url=https%3A%2F%2Fwww.pattycentrodebeleza.com.br%2Fimagens%2Fmichele-tavares.jpeg&w=420&h=746&fit=cover&output=webp&q=68" width="420" height="746" alt="Michele Tavares, lash designer e esteticista" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Michele Tavares</h3>
                                 <p>Lash Designer & Esteticista</p>
@@ -607,7 +613,7 @@
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/deime-sotolongo.jpeg" alt="Deime Sotolongo, manicure, especialista em reflexologia nos pés e nail designer" loading="lazy" decoding="async">
+                            <img src="https://images.weserv.nl/?url=https%3A%2F%2Fwww.pattycentrodebeleza.com.br%2Fimagens%2Fdeime-sotolongo.jpeg&w=420&h=746&fit=cover&output=webp&q=68" width="420" height="746" alt="Deime Sotolongo, manicure, especialista em reflexologia nos pés e nail designer" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Deime Sotolongo</h3>
                                 <p>Manicure completa<br>Especialista em reflexologia nos pés & Nail Designer</p>
@@ -616,7 +622,7 @@
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/allegra-marques.jpeg" alt="Allegra Marques, especialista em cachos e transformações de alto impacto" loading="lazy" decoding="async">
+                            <img src="https://images.weserv.nl/?url=https%3A%2F%2Fwww.pattycentrodebeleza.com.br%2Fimagens%2Fallegra-marques.jpeg&w=420&h=746&fit=cover&output=webp&q=68" width="420" height="746" alt="Allegra Marques, especialista em cachos e transformações de alto impacto" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Allegra Marques</h3>
                                 <p>Especialista em cachos<br>Transformações de alto impacto</p>
@@ -625,7 +631,7 @@
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/hellen-guesser.jpeg" alt="Héllen Guesser, maquiadora" loading="lazy" decoding="async">
+                            <img src="https://images.weserv.nl/?url=https%3A%2F%2Fwww.pattycentrodebeleza.com.br%2Fimagens%2Fhellen-guesser.jpeg&w=420&h=746&fit=cover&output=webp&q=68" width="420" height="746" alt="Héllen Guesser, maquiadora" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Héllen Guesser</h3>
                                 <p>Maquiadora</p>
@@ -634,7 +640,7 @@
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/ana-clara-teixeira.jpeg" alt="Ana Clara Teixeira, recepcionista e gerente" loading="lazy" decoding="async">
+                            <img src="https://images.weserv.nl/?url=https%3A%2F%2Fwww.pattycentrodebeleza.com.br%2Fimagens%2Fana-clara-teixeira.jpeg&w=420&h=746&fit=cover&output=webp&q=68" width="420" height="746" alt="Ana Clara Teixeira, recepcionista e gerente" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Ana Clara Teixeira</h3>
                                 <p>Recepcionista & Gerente</p>
@@ -643,7 +649,7 @@
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/ingrid-goedert.jpeg" alt="Ingrid Goedert, social media do Patty Centro de Beleza" loading="lazy" decoding="async">
+                            <img src="https://images.weserv.nl/?url=https%3A%2F%2Fwww.pattycentrodebeleza.com.br%2Fimagens%2Fingrid-goedert.jpeg&w=420&h=746&fit=cover&output=webp&q=68" width="420" height="746" alt="Ingrid Goedert, social media do Patty Centro de Beleza" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Ingrid Goedert</h3>
                                 <p>Social Media</p>
@@ -802,7 +808,7 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
-                    <img src="imagens/logo-patty-salao.png" alt="Logo Salão da Patty" class="footer-logo" loading="lazy" decoding="async">
+                    <img src="imagens/logo-patty-salao.png" width="150" height="62" alt="Logo Salão da Patty" class="footer-logo" loading="lazy" decoding="async">
                     <p>Sua beleza em outro nível. Um espaço dedicado a celebrar sua individualidade.</p>
                 </div>
                 <div class="footer-col">
