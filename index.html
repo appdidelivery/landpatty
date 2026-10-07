@@ -370,16 +370,7 @@
         @media (min-width: 1024px) {
             .service-card { flex: 0 0 30%; min-width: 30%; }
         }/* PageSpeed: mídia lazy e vídeos sem embed do Instagram */
-        .service-card img{width:100%;height:250px;object-fit:cover;display:block;background:#f4eef0}
-        .video-links-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:28px}
-        .video-link-card{min-height:145px;border-radius:18px;padding:22px;text-decoration:none;display:flex;align-items:flex-end;gap:14px;background:linear-gradient(145deg,#801A39,#a22a4d 60%,#D4A25C);color:#fff;box-shadow:0 8px 24px rgba(91,24,47,.14);transition:transform .2s ease}
-        .video-link-card:hover{transform:translateY(-2px)}
-        .video-play-icon{width:42px;height:42px;border:1px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;flex:0 0 auto;font-size:15px;padding-left:2px}
-        .video-link-copy{display:flex;flex-direction:column;gap:4px}
-        .video-link-copy strong{font-family:Georgia,'Times New Roman',serif;font-size:1.12rem;line-height:1.1}
-        .video-link-copy small{font-size:.82rem;opacity:.88}
-        @media(min-width:768px){.video-links-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-        @media(max-width:480px){.video-links-grid{gap:10px}.video-link-card{min-height:125px;padding:16px;flex-direction:column;align-items:flex-start;justify-content:flex-end}.video-play-icon{width:36px;height:36px}.video-link-copy strong{font-size:1rem}}
+        .service-card img{width:100%;height:250px;object-fit:cover;display:block;background:#f4eef0}.video-link-card{min-height:125px;padding:16px;flex-direction:column;align-items:flex-start;justify-content:flex-end}.video-play-icon{width:36px;height:36px}.video-link-copy strong{font-size:1rem}}
 
     
         /* PageSpeed: renderização e mídia */
@@ -398,6 +389,70 @@
         }
         @media (prefers-reduced-motion:reduce){
           *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+        }
+
+    
+        /* Reels: fachada leve 9:16; Instagram só é carregado depois do clique */
+        .reels-grid{
+            display:grid;
+            grid-auto-flow:column;
+            grid-auto-columns:min(74vw,290px);
+            gap:14px;
+            overflow-x:auto;
+            padding:4px 2px 14px;
+            scroll-snap-type:x mandatory;
+            scrollbar-width:thin;
+            overscroll-behavior-inline:contain;
+        }
+        .reel-facade{
+            appearance:none;
+            position:relative;
+            aspect-ratio:9/16;
+            width:100%;
+            overflow:hidden;
+            border:0;
+            border-radius:18px;
+            padding:0;
+            background:#16070c;
+            cursor:pointer;
+            scroll-snap-align:start;
+            box-shadow:0 8px 26px rgba(36,11,20,.12);
+        }
+        .reel-facade>img{
+            position:absolute;
+            inset:0;
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            transform:scale(1.02);
+        }
+        .reel-shade{
+            position:absolute;
+            inset:0;
+            background:linear-gradient(to bottom,rgba(0,0,0,.03),rgba(0,0,0,.08) 58%,rgba(0,0,0,.32));
+        }
+        .reel-play{
+            position:absolute;
+            inset:0;
+            display:grid;
+            place-items:center;
+            pointer-events:none;
+            filter:drop-shadow(0 4px 14px rgba(0,0,0,.25));
+        }
+        .reel-facade:focus-visible{outline:3px solid var(--rose-gold);outline-offset:3px}
+        .reel-facade iframe{
+            position:absolute;
+            inset:0;
+            width:100%;
+            height:100%;
+            border:0;
+            background:#000;
+        }
+        @media(min-width:768px){
+            .reels-grid{grid-auto-flow:initial;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}
+        }
+        @media(min-width:1180px){
+            .reels-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
         }
 
     </style>
@@ -748,29 +803,54 @@
             </div>
         </section>
 
-                        <section id="destaques" class="trust-section">
+                        
+        <section id="destaques" class="trust-section">
             <div class="container">
                 <h2 class="section-title fade-in">Vídeos em Destaque</h2>
-                <p class="trust-intro fade-in">Trabalhos e momentos selecionados. Toque em um vídeo para assistir.</p>
-                <div class="video-links-grid fade-in" aria-label="Vídeos em destaque do Patty Centro de Beleza">
-                    <a class="video-link-card" href="https://www.instagram.com/reel/DeKwNPBJFOk/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Make + Hair no Instagram">
-                        <span class="video-link-copy"><strong>Make + Hair</strong></span>
-                    </a>
-                    <a class="video-link-card" href="https://www.instagram.com/reel/DcJ9GAmhsYn/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Nail Design no Instagram">
-                        <span class="video-link-copy"><strong>Nail Design</strong></span>
-                    </a>
-                    <a class="video-link-card" href="https://www.instagram.com/reel/DbMZQEZgFNa/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Autocuidado no Instagram">
-                        <span class="video-link-copy"><strong>Autocuidado</strong></span>
-                    </a>
-                    <a class="video-link-card" href="https://www.instagram.com/reel/Da6Kq_0htkE/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Lash Design no Instagram">
-                        <span class="video-link-copy"><strong>Lash Design</strong></span>
-                    </a>
-                    <a class="video-link-card" href="https://www.instagram.com/reel/DdmuczcNO0A/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Experiência Patty no Instagram">
-                        <span class="video-link-copy"><strong>Experiência Patty</strong></span>
-                    </a>
-                    <a class="video-link-card" href="https://www.instagram.com/reel/Dd2GgLFJd0w/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Produção especial no Instagram">
-                        <span class="video-link-copy"><strong>Produção especial</strong></span>
-                    </a>
+                <div class="reels-grid fade-in" aria-label="Vídeos em destaque do Patty Centro de Beleza">
+
+                    <button class="reel-facade" type="button" data-reel-id="DeKwNPBJFOk" aria-label="Reproduzir Make + Hair">
+                        <img src="https://scontent-lax3-2.cdninstagram.com/v/t51.82787-15/839765925_18638621845000944_6523298408455490488_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&_nc_aid=0&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=ofQZCcjuaHoQ7kNvwGCiiM1&_nc_oc=Adr08KWsZSejifO5n_Q6oWE4X7QeVmCPMjZFuvsmgApo-TXZFrfPdKXZkkTG1_52n5Q&_nc_zt=23&_nc_ht=scontent-lax3-2.cdninstagram.com&_nc_gid=8G56ZO9Zfxr3WmYusbg6Ww&_nc_ss=7ba8c&oh=00_AQP_uBpETtKotcoTPLVqT4lgAmQn6OpdutQB5_Q" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
+                        </span>
+                    </button>
+                    <button class="reel-facade" type="button" data-reel-id="DcJ9GAmhsYn" aria-label="Reproduzir Nail Design">
+                        <img src="https://scontent-lax3-1.cdninstagram.com/v/t51.82787-15/775028118_18621535051000944_4933546324370713493_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&_nc_aid=0&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=DldRwzKycbAQ7kNvwEKwGD_&_nc_oc=Adr-4K5UHDKzeKd1L9S0U8dH9OzCAswqasrxEf-bzVHLWJo0_rxCYI9IpXzd5W9T_q4&_nc_zt=23&_nc_ht=scontent-lax3-1.cdninstagram.com&_nc_gid=9aoSMZY0q9UJam_VaKee8w&_nc_ss=7ba8c&oh=00_AQMdErURijLCXnuVcpA9sq_3eR0KFkCFWFe84-S" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
+                        </span>
+                    </button>
+                    <button class="reel-facade" type="button" data-reel-id="DbMZQEZgFNa" aria-label="Reproduzir Autocuidado">
+                        <img src="https://scontent-dfw5-2.cdninstagram.com/v/t51.82787-15/756724632_18079868357690493_3374913361202033626_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=I1fyT6wltuwQ7kNvwEEB75D&_nc_oc=AdpOmUnNrFlLRwl6TZF4PWe4IL_cCgnHt6jrs38jSm7669ysVqH0Oyza-URUiulkyFE&_nc_zt=23&_nc_ht=scontent-dfw5-2.cdninstagram.com&_nc_gid=uPQL6c0mkgO5xl9NHHC7nw&_nc_ss=7ba8c&oh=00_AQM6heW9XA_qECj5LD_qG21-5_cv7IEaaGGsCK86qHHsRg&oe" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
+                        </span>
+                    </button>
+                    <button class="reel-facade" type="button" data-reel-id="Da6Kq_0htkE" aria-label="Reproduzir Lash Design">
+                        <img src="https://scontent-det1-1.cdninstagram.com/v/t51.82787-15/746230946_18610711342000944_740908751803676600_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&_nc_aid=0&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=sLOYGnZ3F6AQ7kNvwFA_1IO&_nc_oc=AdrHyWwxPGUI5K2O1TDu3i6zCt3LCAy5wPKii8ZwAiiDLBMzOed6LuHjINYxSMi1H04&_nc_zt=23&_nc_ht=scontent-det1-1.cdninstagram.com&_nc_gid=Fg4A9FCKd1vC5eWpsNa4gw&_nc_ss=7ba8c&oh=00_AQMELnnyweSsqnrHQof1TvVMwMyF82WknTW209wy" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
+                        </span>
+                    </button>
+                    <button class="reel-facade" type="button" data-reel-id="DdmuczcNO0A" aria-label="Reproduzir Experiência Patty">
+                        <img src="https://scontent-sjc3-1.cdninstagram.com/v/t51.82787-15/819741556_18634080907000944_3198273590401479074_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&_nc_aid=0&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=xusR6MPn38cQ7kNvwGrrlMm&_nc_oc=Adp_GQCHuMfiAGdwrTUmk7hhOJixvdLIvl2GFo5Aw6L-ovMbN1GKVaQUsBoXY9PqQR4&_nc_zt=23&_nc_ht=scontent-sjc3-1.cdninstagram.com&_nc_gid=q-6mfw9EbgA3Y6kxzuC9-g&_nc_ss=7ba8c&oh=00_AQMeBDu1XQjIUvKRvKK8OmYwhJQzxqmudAO4pzh" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
+                        </span>
+                    </button>
+                    <button class="reel-facade" type="button" data-reel-id="Dd2GgLFJd0w" aria-label="Reproduzir Produção especial">
+                        <img src="https://scontent-ord5-1.cdninstagram.com/v/t51.82787-15/825324156_18636153580000944_2508094074891149178_n.jpg?stp=cmp1_dst-jpg_e35_s640x640_tt6&_nc_cat=101&ccb=7-5&_nc_sid=18de74&_nc_aid=0&efg=eyJlZmdfdGFnIjoiQ0xJUFMuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=vS9KPa8pm2cQ7kNvwGBegLq&_nc_oc=AdqkcC2LHNTNqNx0VQQ7jUpiB6vomplq9OhX2mkLULSCKQZPyXK-3B7i_I80TivD1U0&_nc_zt=23&_nc_ht=scontent-ord5-1.cdninstagram.com&_nc_gid=E7O1mfOOUcgolQcRLx4_hw&_nc_ss=7ba8c&oh=00_AQOoiUVnCdAqYACF-TvI7tMqZpE3MccRpsjz-AB" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true">
+                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
+                        </span>
+                    </button>
                 </div>
             </div>
         </section>
@@ -888,6 +968,25 @@
                 });
             }, { threshold: 0.1 });
             fadeInElements.forEach(el => observer.observe(el));
+
+
+            document.querySelectorAll('.reel-facade').forEach(card => {
+                card.addEventListener('click', () => {
+                    if (card.dataset.loaded === '1') return;
+                    const reelId = card.dataset.reelId;
+                    const iframe = document.createElement('iframe');
+                    iframe.title = 'Reel do Patty Centro de Beleza';
+                    iframe.src = 'https://www.instagram.com/reel/' + reelId + '/embed/?autoplay=1';
+                    iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+                    iframe.setAttribute('allowfullscreen', '');
+                    iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+                    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
+                    card.dataset.loaded = '1';
+                    card.replaceChildren(iframe);
+                    card.style.cursor = 'default';
+                    card.setAttribute('aria-label', 'Vídeo em reprodução');
+                }, { once:true });
+            });
 
             const agendamentoForm = document.getElementById('agendamentoForm');
             agendamentoForm.addEventListener('submit', function(event) {
