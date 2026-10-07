@@ -316,25 +316,7 @@
             flex: 0 0 78%; min-width: 78%; max-width: 330px; scroll-snap-align: center;
             background: #111; border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-medium);
             position: relative;
-        }
-        .story-label {
-            min-height: 76px; background: #fff; padding: 14px 16px;
-            display: flex; align-items: center; justify-content: space-between; gap: 12px;
-        }
-        .story-label strong { color: var(--burgundy); display: block; font-family: var(--font-heading); }
-        .story-label span { display: block; color: #777; font-size: .78rem; margin-top: 2px; }
-        .story-label a { color: var(--burgundy); text-decoration: none; font-weight: 600; font-size: .82rem; white-space: nowrap; }
-        .story-frame { position: relative; width: 100%; aspect-ratio: 9 / 16; background: #111; }
-        .story-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
-        .trust-proof-grid {
-            display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 28px;
-        }
-        .trust-proof {
-            background: #fff; border-radius: 14px; padding: 18px; border: 1px solid #eadfe3;
-        }
-        .trust-proof strong { display: block; color: var(--burgundy); margin-bottom: 4px; }
-
-        .location-grid { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; }
+        }.location-grid { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; }
         .location-map { background: #fff; border-radius: var(--border-radius); overflow: hidden; box-shadow: var(--shadow-soft); }
         .location-map iframe { width: 100%; height: 400px; border: none; display: block; }
         .location-info p { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px; }
@@ -394,18 +376,7 @@
         }
         @media (min-width: 1024px) {
             .service-card { flex: 0 0 30%; min-width: 30%; }
-        }
-    
-        /* Atualização 07/10: imagens de serviços, galeria real e destaques */
-        .real-gallery-grid { display:grid; grid-template-columns:1fr; gap:16px; }
-        .real-gallery-item { margin:0; position:relative; overflow:hidden; border-radius:14px; background:#f4eef0; box-shadow:0 8px 22px rgba(0,0,0,.10); }
-        .real-gallery-item img { width:100%; height:460px; object-fit:cover; display:block; }
-        .real-gallery-item figcaption { position:absolute; left:0; right:0; bottom:0; padding:36px 14px 12px; color:#fff; font-size:.82rem; font-weight:600; background:linear-gradient(to top,rgba(0,0,0,.72),transparent); }
-        .service-card img { background:#f4eef0; }
-        @media (min-width:768px){ .real-gallery-grid{grid-template-columns:minmax(0,420px);} .real-gallery-item img{height:520px;} }
-
-    
-        /* PageSpeed: mídia lazy e vídeos sem embed do Instagram */
+        }/* PageSpeed: mídia lazy e vídeos sem embed do Instagram */
         .service-card img{width:100%;height:250px;object-fit:cover;display:block;background:#f4eef0}
         .video-links-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:28px}
         .video-link-card{min-height:145px;border-radius:18px;padding:22px;text-decoration:none;display:flex;align-items:flex-end;gap:14px;background:linear-gradient(145deg,#801A39,#a22a4d 60%,#D4A25C);color:#fff;box-shadow:0 8px 24px rgba(91,24,47,.14);transition:transform .2s ease}
@@ -416,6 +387,12 @@
         .video-link-copy small{font-size:.82rem;opacity:.88}
         @media(min-width:768px){.video-links-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
         @media(max-width:480px){.video-links-grid{gap:10px}.video-link-card{min-height:125px;padding:16px;flex-direction:column;align-items:flex-start;justify-content:flex-end}.video-play-icon{width:36px;height:36px}.video-link-copy strong{font-size:1rem}}
+
+    
+        /* PageSpeed: renderização e mídia */
+        .team-section,.reviews-section,.trust-section,.location-section{content-visibility:auto;contain-intrinsic-size:800px}
+        .service-card img{aspect-ratio:16/10;width:100%;height:auto;min-height:220px;max-height:250px;object-fit:cover}
+        .video-links-grid{content-visibility:auto}
 
     </style>
 </head>
@@ -487,7 +464,7 @@
                     <div class="services-carousel">
                         
                         <div class="service-card">
-                            <img src="data:image/webp;base64,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" alt="Penteado e resultado real enviado pelo Patty Centro de Beleza" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center center;">
+                            <img src="data:image/webp;base64,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" alt="Penteado e resultado real enviado pelo Patty Centro de Beleza" loading="lazy" decoding="async" fetchpriority="low" width="480" height="565" style="object-position:center center;">
                             <div class="service-card-content">
                                 <h3>Cabelos & Cachos</h3>
                                 <p>Cortes, coloração e tratamentos especializados para todos os tipos de fios e curvaturas.</p>
@@ -499,11 +476,10 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="data:image/webp;base64,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" alt="Nail art real enviada pelo Patty Centro de Beleza" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center center;">
+                            <img src="imagens/portfolio/unhas/patty-unhas-01-07.webp" alt="Nail Design real realizado no Patty Centro de Beleza" loading="lazy" decoding="async" fetchpriority="low" width="400" height="600">
                             <div class="service-card-content">
                                 <h3>Nail Design & Manicure</h3>
                                 <p>Suas unhas impecáveis com técnicas de alongamento, blindagem e nail art.</p>
-                                <a href="#galeria-unhas" style="color:var(--burgundy);font-weight:600;text-decoration:none;margin-top:10px;">Ver trabalhos reais →</a>
                                 <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20o%20servi%C3%A7o%20de%20Nail%20Design%20e%20Manicure." target="_blank" class="btn-whatsapp-small">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.01 2.002c-5.522 0-9.998 4.477-9.998 9.998 0 1.765.46 3.447 1.285 4.93L2.003 22l5.176-1.284c1.455.787 3.107 1.206 4.83 1.206 5.522 0 10.002-4.477 10.002-10.002S17.532 2.002 12.01 2.002zm5.836 14.542c-.25.702-1.43 1.34-1.996 1.452-.524.103-1.2.22-3.418-.703-2.685-1.118-4.38-3.844-4.512-4.02-.13-.176-1.077-1.434-1.077-2.747 0-1.314.685-1.96 9.32-2.228.24-.183.565-.213.784.316.227.55.77 1.884.84 2.036.07.153.116.33.023.513-.092.183-.14.297-.28.45-.14.153-.298.337-.417.45-.13.13-.264.275-.11.514.15.24 6.678 1.084 1.31 1.75.63.666 1.4 1.42 1.54 1.65.14.23.14.33-.024.514-.165.183-.77 1.08-1.02 1.39z"/></svg>
                                     Agendar Unhas
@@ -512,7 +488,7 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="https://images.unsplash.com/photo-1614199548741-d99514d5a8d8?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem de referência para design de sobrancelhas" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center 28%;">
+                            <img src="https://images.unsplash.com/photo-1777521778743-d152c0404e32?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem fotográfica de referência para design de sobrancelhas" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center 30%;">
                             <div class="service-card-content">
                                 <h3>Sobrancelhas & Micro</h3>
                                 <p>Design estratégico e micropigmentação para realçar e emoldurar seu olhar.</p>
@@ -524,7 +500,7 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="https://images.unsplash.com/photo-1614199548741-d99514d5a8d8?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem de referência para Lash Design" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center 55%;">
+                            <img src="https://images.unsplash.com/photo-1773680347850-3a8bf8c7ac5d?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem fotográfica de referência para extensão de cílios" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center 48%;">
                             <div class="service-card-content">
                                 <h3>Lash Design (Cílios)</h3>
                                 <p>Extensões de cílios com alta durabilidade e naturalidade para um olhar poderoso.</p>
@@ -536,7 +512,7 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="https://images.unsplash.com/photo-1757689373248-a6cd07328ba5?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem de referência para estética e cuidados" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center center;">
+                            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem fotográfica de referência para estética facial" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center center;">
                             <div class="service-card-content">
                                 <h3>Estética & Cuidados</h3>
                                 <p>Protocolos avançados de estética facial e corporal para seu bem-estar completo.</p>
@@ -560,7 +536,7 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="https://images.unsplash.com/photo-1757689373248-a6cd07328ba5?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem de referência para depilação e cuidados com a pele" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center center;">
+                            <img src="https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem fotográfica de referência para cuidados corporais e depilação" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center center;">
                             <div class="service-card-content">
                                 <h3>Depilação</h3>
                                 <p>Técnicas de depilação com cuidado, higiene e conforto para a sua pele.</p>
@@ -572,7 +548,7 @@
                         </div>
 
                         <div class="service-card">
-                            <img src="https://images.unsplash.com/photo-1731355774353-4131a8e13e55?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem de referência para massoterapia" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center center;">
+                            <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&fm=webp&q=65&w=640" alt="Imagem fotográfica de referência para massoterapia" loading="lazy" decoding="async" fetchpriority="low" width="640" height="420" style="object-position:center center;">
                             <div class="service-card-content">
                                 <h3>Massoterapia & Terapias</h3>
                                 <p>Massagem Relaxante, Terapêutica, Drenagem, Ventosaterapia, Reiki, Barras de Access, Cone Hindu e mais.</p>
@@ -772,28 +748,22 @@
                 <p class="trust-intro fade-in">Trabalhos e momentos selecionados. Toque em um vídeo para assistir.</p>
                 <div class="video-links-grid fade-in" aria-label="Vídeos em destaque do Patty Centro de Beleza">
                     <a class="video-link-card" href="https://www.instagram.com/reel/DeKwNPBJFOk/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Make + Hair no Instagram">
-                        <span class="video-play-icon" aria-hidden="true">▶</span>
-                        <span class="video-link-copy"><strong>Make + Hair</strong><small>Produção para eventos</small></span>
+                        <span class="video-link-copy"><strong>Make + Hair</strong></span>
                     </a>
                     <a class="video-link-card" href="https://www.instagram.com/reel/DcJ9GAmhsYn/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Nail Design no Instagram">
-                        <span class="video-play-icon" aria-hidden="true">▶</span>
-                        <span class="video-link-copy"><strong>Nail Design</strong><small>Esmaltação em gel</small></span>
+                        <span class="video-link-copy"><strong>Nail Design</strong></span>
                     </a>
                     <a class="video-link-card" href="https://www.instagram.com/reel/DbMZQEZgFNa/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Autocuidado no Instagram">
-                        <span class="video-play-icon" aria-hidden="true">▶</span>
-                        <span class="video-link-copy"><strong>Autocuidado</strong><small>Beleza e bem-estar</small></span>
+                        <span class="video-link-copy"><strong>Autocuidado</strong></span>
                     </a>
                     <a class="video-link-card" href="https://www.instagram.com/reel/Da6Kq_0htkE/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Lash Design no Instagram">
-                        <span class="video-play-icon" aria-hidden="true">▶</span>
-                        <span class="video-link-copy"><strong>Lash Design</strong><small>Extensão de cílios</small></span>
+                        <span class="video-link-copy"><strong>Lash Design</strong></span>
                     </a>
                     <a class="video-link-card" href="https://www.instagram.com/reel/DdmuczcNO0A/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Experiência Patty no Instagram">
-                        <span class="video-play-icon" aria-hidden="true">▶</span>
-                        <span class="video-link-copy"><strong>Experiência Patty</strong><small>Autocuidado e bem-estar</small></span>
+                        <span class="video-link-copy"><strong>Experiência Patty</strong></span>
                     </a>
                     <a class="video-link-card" href="https://www.instagram.com/reel/Dd2GgLFJd0w/" target="_blank" rel="noopener noreferrer" aria-label="Assistir Produção especial no Instagram">
-                        <span class="video-play-icon" aria-hidden="true">▶</span>
-                        <span class="video-link-copy"><strong>Produção especial</strong><small>Hair + Make</small></span>
+                        <span class="video-link-copy"><strong>Produção especial</strong></span>
                     </a>
                 </div>
             </div>
