@@ -25,7 +25,7 @@ REEL_IDS = (
     "Dd2GgLFJd0w",  # Producao especial
 )
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "imagens" / "reels"
 OUT.mkdir(parents=True, exist_ok=True)
 
