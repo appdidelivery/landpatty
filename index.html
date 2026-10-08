@@ -392,7 +392,7 @@
         }
 
     
-        /* Reels: fachada leve 9:16; Instagram só é carregado depois do clique */
+        /* Reels: capas locais reais, proporção 9:16 e player sob demanda */
         .reels-grid{
             display:grid;
             grid-auto-flow:column;
@@ -413,16 +413,43 @@
             border:0;
             border-radius:18px;
             padding:0;
-            background:
-                radial-gradient(circle at 68% 18%,rgba(212,162,92,.24),transparent 26%),
-                linear-gradient(155deg,#2a0b16 0%,#801A39 58%,#b46c68 100%);
+            background:#38141e;
             cursor:pointer;
             scroll-snap-align:start;
             box-shadow:0 8px 26px rgba(36,11,20,.12);
-        }.reel-shade{
+            isolation:isolate;
+            display:block;
+            text-align:left;
+        }
+        .reel-cover{
             position:absolute;
             inset:0;
-            background:linear-gradient(to bottom,rgba(255,255,255,.03),rgba(0,0,0,.12));
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            object-position:center;
+            display:block;
+            transition:transform .35s ease;
+        }
+        .reel-facade:hover .reel-cover{transform:scale(1.035)}
+        .reel-shade{
+            position:absolute;
+            inset:0;
+            background:linear-gradient(to bottom,rgba(30,10,16,0) 35%,rgba(30,10,16,.72) 100%);
+            pointer-events:none;
+        }
+        .reel-caption{
+            position:absolute;
+            z-index:2;
+            bottom:14px;
+            left:14px;
+            right:14px;
+            font-size:.88rem;
+            font-weight:650;
+            line-height:1.3;
+            color:white;
+            text-shadow:0 2px 8px rgba(0,0,0,.5);
+            pointer-events:none;
         }
         .reel-play{
             position:absolute;
@@ -430,12 +457,14 @@
             display:grid;
             place-items:center;
             pointer-events:none;
+            z-index:3;
             filter:drop-shadow(0 4px 14px rgba(0,0,0,.25));
         }
         .reel-facade:focus-visible{outline:3px solid var(--rose-gold);outline-offset:3px}
         .reel-facade iframe{
             position:absolute;
             inset:0;
+            z-index:4;
             width:100%;
             height:100%;
             border:0;
@@ -802,41 +831,46 @@
                 <h2 class="section-title fade-in">Vídeos em Destaque</h2>
                 <div class="reels-grid fade-in" aria-label="Vídeos em destaque do Patty Centro de Beleza">
 
-                    <button class="reel-facade" type="button" data-reel-id="DeKwNPBJFOk" aria-label="Reproduzir Make + Hair">
-<span class="reel-shade" aria-hidden="true"></span>
-                        <span class="reel-play" aria-hidden="true">
-                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
-                        </span>
+                    <button class="reel-facade" type="button" data-reel-id="DeKwNPBJFOk" aria-label="Reproduzir vídeo: Make & Hair">
+                        <img class="reel-cover" src="imagens/reels/DeKwNPBJFOk.jpg" data-fallback="imagens/hero-background.jpg" alt="Maquiagem e penteado para ocasiões especiais" width="360" height="640" loading="lazy" decoding="async">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true"><svg viewBox="0 0 64 64" width="44" height="44"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.94)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg></span>
+                        <span class="reel-caption" aria-hidden="true">Make & Hair</span>
                     </button>
-                    <button class="reel-facade" type="button" data-reel-id="DcJ9GAmhsYn" aria-label="Reproduzir Nail Design">
-<span class="reel-shade" aria-hidden="true"></span>
-                        <span class="reel-play" aria-hidden="true">
-                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
-                        </span>
+
+                    <button class="reel-facade" type="button" data-reel-id="DcJ9GAmhsYn" aria-label="Reproduzir vídeo: Nail Design">
+                        <img class="reel-cover" src="imagens/reels/DcJ9GAmhsYn.jpg" data-fallback="imagens/portfolio/unhas/patty-unhas-01-07.webp" alt="Cuidados profissionais com unhas e esmaltação em gel" width="360" height="640" loading="lazy" decoding="async">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true"><svg viewBox="0 0 64 64" width="44" height="44"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.94)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg></span>
+                        <span class="reel-caption" aria-hidden="true">Nail Design</span>
                     </button>
-                    <button class="reel-facade" type="button" data-reel-id="DbMZQEZgFNa" aria-label="Reproduzir Autocuidado">
-<span class="reel-shade" aria-hidden="true"></span>
-                        <span class="reel-play" aria-hidden="true">
-                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
-                        </span>
+
+                    <button class="reel-facade" type="button" data-reel-id="DbMZQEZgFNa" aria-label="Reproduzir vídeo: Autocuidado">
+                        <img class="reel-cover" src="imagens/reels/DbMZQEZgFNa.jpg" data-fallback="imagens/equipe-01.jpg" alt="Autocuidado e beleza no Patty Centro de Beleza" width="360" height="640" loading="lazy" decoding="async">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true"><svg viewBox="0 0 64 64" width="44" height="44"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.94)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg></span>
+                        <span class="reel-caption" aria-hidden="true">Autocuidado</span>
                     </button>
-                    <button class="reel-facade" type="button" data-reel-id="Da6Kq_0htkE" aria-label="Reproduzir Lash Design">
-<span class="reel-shade" aria-hidden="true"></span>
-                        <span class="reel-play" aria-hidden="true">
-                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
-                        </span>
+
+                    <button class="reel-facade" type="button" data-reel-id="Da6Kq_0htkE" aria-label="Reproduzir vídeo: Lash Design">
+                        <img class="reel-cover" src="imagens/reels/Da6Kq_0htkE.jpg" data-fallback="imagens/michele-tavares.jpeg" alt="Extensão de cílios profissional" width="360" height="640" loading="lazy" decoding="async">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true"><svg viewBox="0 0 64 64" width="44" height="44"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.94)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg></span>
+                        <span class="reel-caption" aria-hidden="true">Lash Design</span>
                     </button>
-                    <button class="reel-facade" type="button" data-reel-id="DdmuczcNO0A" aria-label="Reproduzir Experiência Patty">
-<span class="reel-shade" aria-hidden="true"></span>
-                        <span class="reel-play" aria-hidden="true">
-                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
-                        </span>
+
+                    <button class="reel-facade" type="button" data-reel-id="DdmuczcNO0A" aria-label="Reproduzir vídeo: Experiência Patty">
+                        <img class="reel-cover" src="imagens/reels/DdmuczcNO0A.jpg" data-fallback="imagens/equipe-02.jpg" alt="Experiência de beleza e bem-estar no salão" width="360" height="640" loading="lazy" decoding="async">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true"><svg viewBox="0 0 64 64" width="44" height="44"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.94)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg></span>
+                        <span class="reel-caption" aria-hidden="true">Experiência Patty</span>
                     </button>
-                    <button class="reel-facade" type="button" data-reel-id="Dd2GgLFJd0w" aria-label="Reproduzir Produção especial">
-<span class="reel-shade" aria-hidden="true"></span>
-                        <span class="reel-play" aria-hidden="true">
-                            <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.95)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg>
-                        </span>
+
+                    <button class="reel-facade" type="button" data-reel-id="Dd2GgLFJd0w" aria-label="Reproduzir vídeo: Produção especial">
+                        <img class="reel-cover" src="imagens/reels/Dd2GgLFJd0w.jpg" data-fallback="imagens/servico-cabelos.jpg" alt="Produção especial de beleza no salão" width="360" height="640" loading="lazy" decoding="async">
+                        <span class="reel-shade" aria-hidden="true"></span>
+                        <span class="reel-play" aria-hidden="true"><svg viewBox="0 0 64 64" width="44" height="44"><circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.94)"/><path d="M26 20v24l20-12z" fill="#801A39"/></svg></span>
+                        <span class="reel-caption" aria-hidden="true">Produção especial</span>
                     </button>
                 </div>
             </div>
@@ -956,6 +990,15 @@
             }, { threshold: 0.1 });
             fadeInElements.forEach(el => observer.observe(el));
 
+
+            // Caso a miniatura do Instagram ainda não esteja sincronizada, exibe uma foto real do salão.
+            document.querySelectorAll('.reel-cover').forEach(cover => {
+                cover.addEventListener('error', () => {
+                    if (cover.dataset.fallbackUsed === '1') return;
+                    cover.dataset.fallbackUsed = '1';
+                    cover.src = cover.dataset.fallback;
+                });
+            });
 
             document.querySelectorAll('.reel-facade').forEach(card => {
                 card.addEventListener('click', () => {
