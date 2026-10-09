@@ -944,6 +944,40 @@
     </a>
 
     <script>
+        // Analytics: todos os pontos de acesso ao WhatsApp usam o mesmo evento.
+        // Dados pessoais e o texto da mensagem NÃO são enviados ao GA4.
+        function registrarCliqueWhatsApp(area, servico, botao) {
+            loadDeferredGTM();
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event: 'whatsapp_click',
+                whatsapp_area: String(area || 'outros').slice(0, 60),
+                whatsapp_servico: String(servico || 'atendimento_geral').slice(0, 100),
+                whatsapp_botao: String(botao || 'link').slice(0, 60)
+            });
+        }
+
+        // Captura links wa.me, inclusive clique via teclado e elementos SVG internos.
+        document.addEventListener('click', (evt) => {
+            const origem = evt.target instanceof Element ? evt.target : evt.target.parentElement;
+            const link = origem && origem.closest('a[href]');
+            if (!link) return;
+            let url;
+            try { url = new URL(link.href, window.location.href); } catch (_) { return; }
+            if (!['wa.me', 'api.whatsapp.com', 'web.whatsapp.com'].includes(url.hostname)) return;
+            const cardServico = link.closest('.service-card');
+            const cardEquipe = link.closest('.team-card');
+            const area = cardServico ? 'servicos'
+                : cardEquipe ? 'equipe'
+                : link.classList.contains('whatsapp-float') ? 'flutuante' : 'outros';
+            const card = cardServico || cardEquipe;
+            const servico = card ? (card.querySelector('h3')?.textContent || 'atendimento_geral').trim()
+                : 'atendimento_geral';
+            const botao = cardServico ? 'botao_servico' : cardEquipe ? 'botao_profissional'
+                : area === 'flutuante' ? 'botao_flutuante' : 'link_whatsapp';
+            registrarCliqueWhatsApp(area, servico, botao);
+        }, { capture: true });
+
         function loadDeferredGTM() {
             if (window.__gtmLoaded) return;
             window.__gtmLoaded = true;
@@ -1029,6 +1063,7 @@
                 let mensagem = `Olá, me chamo ${nome}, escolhi o serviço de *${servico}* e gostaria de agendar um horário.`;
                 if(whatsappOpcional) { mensagem += ` Meu número para contato é ${whatsappOpcional}.`; }
                 
+                registrarCliqueWhatsApp('formulario', servico, 'form_agendamento');
                 window.open(`https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`, '_blank');
             });
             
