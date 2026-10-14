@@ -315,6 +315,9 @@
         .location-map iframe { width: 100%; height: 400px; border: none; display: block; }
         .location-info p { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px; }
         .route-link { display: inline-flex; align-items: center; gap: 8px; color: var(--burgundy); font-weight: 600; text-decoration: none; margin-top: 8px; }
+        .form-note { font-size: .77rem; line-height: 1.45; margin: 10px 0 0; color: rgba(255,255,255,.84); }
+        .contact-phone { display: flex; margin: 12px 0 6px; }
+        .contact-phone a { color: var(--burgundy); font-weight: 700; }
 
         footer { background-color: #1c1c1c; color: #aaa; padding: 80px 0 30px; }
         .footer-grid { display: grid; grid-template-columns: 1fr; gap: 40px; text-align: center; }
@@ -534,6 +537,7 @@
                         </select>
                     </div>
                     <button type="submit" class="btn-submit">Agendar via WhatsApp</button>
+                    <p class="form-note">Ao continuar, o WhatsApp será aberto. Confirme o envio da mensagem para solicitar seu horário.</p>
                 </form>
             </div>
         </div>
@@ -889,6 +893,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             Segunda das 13:30h às 19h | terça a Sábado, das 09h às 19h
                         </p>
+                        <p class="contact-phone"><a href="tel:+5548988032478" data-contact-location="localizacao" aria-label="Ligar para o Patty Centro de Beleza">Telefone: (48) 98803-2478</a></p>
                         <a class="route-link" href="https://www.google.com/maps/dir/?api=1&destination=R.%20Pedro%20%C3%81lvares%20Cabral%2C%20244%2C%20Forquilhinhas%2C%20S%C3%A3o%20Jos%C3%A9%20-%20SC%2C%2088106-750" target="_blank" rel="noopener noreferrer" aria-label="Abrir rota para Patty Centro de Beleza no Google Maps">Abrir rota no Google Maps →</a>
                     </div>
                     <div class="location-map">
@@ -925,6 +930,7 @@
                 <div class="footer-col">
                     <h4>Contato</h4>
                     <p>R. Pedro Álvares Cabral, 244<br>Forquilhinhas, São José - SC</p>
+                    <p><a href="tel:+5548988032478" data-contact-location="rodape" aria-label="Ligar para o salão">Ligar: (48) 98803-2478</a></p>
                     <div class="social-icons-footer">
                         <a href="https://www.instagram.com/pattycentrodebeleza" target="_blank" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
                         <a href="https://www.facebook.com/share/1CaXGvfuWC" target="_blank" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
@@ -944,16 +950,50 @@
     </a>
 
     <script>
-        // Analytics: todos os pontos de acesso ao WhatsApp usam o mesmo evento.
-        // Dados pessoais e o texto da mensagem NÃO são enviados ao GA4.
-        function registrarCliqueWhatsApp(area, servico, botao) {
+        // Eventos de intenção: não equivalem a mensagens recebidas ou agendamentos.
+        // Nunca enviar nome, telefone ou conteúdo da mensagem ao GA4/Google Ads.
+        function pattyReferencia() {
+            const random = window.crypto && window.crypto.randomUUID
+                ? window.crypto.randomUUID().replace(/-/g, '').slice(0, 10)
+                : Math.random().toString(36).slice(2, 12).padEnd(10, '0');
+            return 'PTY-' + random.toUpperCase();
+        }
+
+        // Guarda a origem da visita nesta aba, incluindo identificadores Ads para integração futura.
+        // O identificador de clique não é enviado como parâmetro customizado ao Analytics.
+        function pattyCampanha() {
+            const qs = new URLSearchParams(window.location.search);
+            const keys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','gclid','gbraid','wbraid'];
+            let origens = {};
+            try { origens = JSON.parse(sessionStorage.getItem('patty_campaign') || '{}'); } catch (_) {}
+            for (const key of keys) {
+                if (qs.has(key)) origens[key] = String(qs.get(key) || '').slice(0, 150);
+            }
+            try { sessionStorage.setItem('patty_campaign', JSON.stringify(origens)); } catch (_) {}
+            return origens;
+        }
+
+        function pattyEvento(nomeEvento, detalhes) {
+            const campanha = pattyCampanha();
             loadDeferredGTM();
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({
-                event: 'whatsapp_click',
+                event: nomeEvento,
+                ...detalhes,
+                campaign_utm_source: campanha.utm_source || '(nao_informada)',
+                campaign_utm_medium: campanha.utm_medium || '(nao_informada)',
+                campaign_utm_campaign: campanha.utm_campaign || '(nao_informada)',
+                campaign_has_click_id: !!(campanha.gclid || campanha.gbraid || campanha.wbraid)
+            });
+        }
+
+        // Mantém evento e parâmetros da tag WhatsApp atual, sem quebrar conversões existentes.
+        function registrarCliqueWhatsApp(area, servico, botao, referencia) {
+            pattyEvento('whatsapp_click', {
                 whatsapp_area: String(area || 'outros').slice(0, 60),
                 whatsapp_servico: String(servico || 'atendimento_geral').slice(0, 100),
-                whatsapp_botao: String(botao || 'link').slice(0, 60)
+                whatsapp_botao: String(botao || 'link').slice(0, 60),
+                lead_reference: referencia || pattyReferencia()
             });
         }
 
@@ -964,18 +1004,31 @@
             if (!link) return;
             let url;
             try { url = new URL(link.href, window.location.href); } catch (_) { return; }
-            if (!['wa.me', 'api.whatsapp.com', 'web.whatsapp.com'].includes(url.hostname)) return;
-            const cardServico = link.closest('.service-card');
-            const cardEquipe = link.closest('.team-card');
-            const area = cardServico ? 'servicos'
-                : cardEquipe ? 'equipe'
-                : link.classList.contains('whatsapp-float') ? 'flutuante' : 'outros';
-            const card = cardServico || cardEquipe;
-            const servico = card ? (card.querySelector('h3')?.textContent || 'atendimento_geral').trim()
-                : 'atendimento_geral';
-            const botao = cardServico ? 'botao_servico' : cardEquipe ? 'botao_profissional'
-                : area === 'flutuante' ? 'botao_flutuante' : 'link_whatsapp';
-            registrarCliqueWhatsApp(area, servico, botao);
+            if (['wa.me', 'api.whatsapp.com', 'web.whatsapp.com'].includes(url.hostname)) {
+                const cardServico = link.closest('.service-card');
+                const cardEquipe = link.closest('.team-card');
+                const area = cardServico ? 'servicos'
+                    : cardEquipe ? 'equipe'
+                    : link.classList.contains('whatsapp-float') ? 'flutuante' : 'outros';
+                const card = cardServico || cardEquipe;
+                const servico = card ? (card.querySelector('h3')?.textContent || 'atendimento_geral').trim()
+                    : 'atendimento_geral';
+                const botao = cardServico ? 'botao_servico' : cardEquipe ? 'botao_profissional'
+                    : area === 'flutuante' ? 'botao_flutuante' : 'link_whatsapp';
+                const ref = pattyReferencia();
+                if (link.dataset.whatsappTextoOriginal === undefined) {
+                    link.dataset.whatsappTextoOriginal = url.searchParams.get('text') || '';
+                }
+                url.searchParams.set('text', link.dataset.whatsappTextoOriginal + '\n\nRef. atendimento: ' + ref);
+                link.href = url.toString();
+                registrarCliqueWhatsApp(area, servico, botao, ref);
+            } else if (url.protocol === 'tel:') {
+                pattyEvento('phone_click', {
+                    phone_area: String(link.dataset.contactLocation || 'site').slice(0, 60),
+                    contact_channel: 'telefone',
+                    lead_reference: pattyReferencia()
+                });
+            }
         }, { capture: true });
 
         function loadDeferredGTM() {
@@ -1063,7 +1116,17 @@
                 let mensagem = `Olá, me chamo ${nome}, escolhi o serviço de *${servico}* e gostaria de agendar um horário.`;
                 if(whatsappOpcional) { mensagem += ` Meu número para contato é ${whatsappOpcional}.`; }
                 
-                registrarCliqueWhatsApp('formulario', servico, 'form_agendamento');
+                const referencia = pattyReferencia();
+                // Evento separado do clique para conhecer quais serviços são solicitados no formulário.
+                // Não representa atendimento confirmado nem armazena dados pessoais.
+                pattyEvento('form_agendamento_submit', {
+                    form_name: 'agendamento_hero',
+                    form_service: String(servico).slice(0, 100),
+                    form_has_phone: !!whatsappOpcional.trim(),
+                    lead_reference: referencia
+                });
+                registrarCliqueWhatsApp('formulario', servico, 'form_agendamento', referencia);
+                mensagem += '\n\nRef. atendimento: ' + referencia;
                 window.open(`https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`, '_blank');
             });
             
