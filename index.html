@@ -519,8 +519,8 @@
                         <input type="text" id="nome" name="nome" autocomplete="name" toolparamdescription="Nome da pessoa que deseja agendar." placeholder="Como podemos te chamar?" required>
                     </div>
                     <div class="form-group">
-                        <label for="whatsapp">Seu WhatsApp (Opcional)</label>
-                        <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" toolparamdescription="WhatsApp opcional para retorno." placeholder="Ex: 48999998888">
+                        <label for="whatsapp">Seu WhatsApp para contato</label>
+                        <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" toolparamdescription="Número para retorno sobre o agendamento." placeholder="Ex: 48999998888" required minlength="10" maxlength="20">
                     </div>
                     <div class="form-group">
                         <label for="servico">Qual serviço você deseja?</label>
@@ -536,6 +536,15 @@
                             <option value="Massoterapia e Terapias">Massoterapia e Terapias</option>
                         </select>
                     </div>
+                    <div class="form-group" style="display:none" aria-hidden="true"><label for="patty_site">Site</label><input type="text" id="patty_site" name="website" tabindex="-1" autocomplete="off"></div>
+                    <div class="form-group" style="font-size:.88rem">
+                        <label style="display:flex;align-items:flex-start;gap:9px;font-weight:400">
+                            <input type="checkbox" id="privacy-ack" required style="width:19px;min-height:19px;flex-shrink:0;margin-top:3px">
+                            <span>Li o <a href="/privacidade.html" target="_blank" rel="noopener noreferrer" style="color:#fff;text-decoration:underline">aviso de privacidade</a> e estou ciente do uso dos dados para atender meu pedido de agendamento.</span>
+                        </label>
+                    </div>
+                    <div id="patty-turnstile" style="margin-bottom:12px"></div>
+                    <p id="patty-crm-alert" class="form-note" role="status"></p>
                     <button type="submit" class="btn-submit">Agendar via WhatsApp</button>
                     <p class="form-note">Ao continuar, o WhatsApp será aberto. Confirme o envio da mensagem para solicitar seu horário.</p>
                 </form>
@@ -1105,31 +1114,82 @@
                 }, { once:true });
             });
 
+            // O site continua encaminhando a cliente ao WhatsApp Business.
+            // O CRM salva o lead primeiro, sem publicar nome/telefone no GA4.
             const agendamentoForm = document.getElementById('agendamentoForm');
-            agendamentoForm.addEventListener('submit', function(event) {
+            let pattyCaptchaId = null;
+            let pattyCaptchaConfig = null;
+            (async function configurarVerificacao() {
+                try {
+                    const response = await fetch('/api/config', {cache:'no-store'});
+                    if (!response.ok) return;
+                    pattyCaptchaConfig = await response.json();
+                    if (!pattyCaptchaConfig.turnstileSiteKey) return;
+                    const script = document.createElement('script');
+                    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+                    script.async = true;
+                    script.onload = () => {
+                        if (window.turnstile) pattyCaptchaId = window.turnstile.render('#patty-turnstile', {
+                            sitekey: pattyCaptchaConfig.turnstileSiteKey
+                        });
+                    };
+                    document.head.appendChild(script);
+                } catch (_) { /* fallback para WhatsApp, sem alegar captação */ }
+            })();
+            agendamentoForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
-                const numeroWhatsApp = '5548988032478'; 
-                const nome = document.getElementById('nome').value;
+                if (!agendamentoForm.reportValidity()) return;
+                const nome = document.getElementById('nome').value.trim();
                 const servico = document.getElementById('servico').value;
-                const whatsappOpcional = document.getElementById('whatsapp').value;
-                
-                let mensagem = `Olá, me chamo ${nome}, escolhi o serviço de *${servico}* e gostaria de agendar um horário.`;
-                if(whatsappOpcional) { mensagem += ` Meu número para contato é ${whatsappOpcional}.`; }
-                
-                const referencia = pattyReferencia();
-                // Evento separado do clique para conhecer quais serviços são solicitados no formulário.
-                // Não representa atendimento confirmado nem armazena dados pessoais.
+                const phone = document.getElementById('whatsapp').value.trim();
+                const ref = pattyReferencia();
+                const camp = pattyCampanha();
+                const alert = document.getElementById('patty-crm-alert');
+                const btn = agendamentoForm.querySelector('button[type="submit"]');
+                const msg = 'Olá, me chamo ' + nome + ', escolhi o serviço de *' + servico
+                  + '* e gostaria de agendar um horário. Meu WhatsApp é ' + phone
+                  + '.\n\nRef. atendimento: ' + ref;
+                const waUrl = 'https://wa.me/5548988032478?text=' + encodeURIComponent(msg);
+                // Abre uma janela ainda no gesto do usuário; evita bloqueio após a chamada assíncrona.
+                const tab = window.open('about:blank', '_blank');
+                if (tab) tab.document.body.textContent = 'Preparando seu atendimento no WhatsApp...';
+                btn.disabled = true;
+                alert.textContent = 'Registrando sua solicitação...';
                 pattyEvento('form_agendamento_submit', {
-                    form_name: 'agendamento_hero',
-                    form_service: String(servico).slice(0, 100),
-                    form_has_phone: !!whatsappOpcional.trim(),
-                    lead_reference: referencia
+                    form_name: 'agendamento_hero', form_service: String(servico).slice(0, 100),
+                    form_has_phone: true, lead_reference: ref
                 });
-                registrarCliqueWhatsApp('formulario', servico, 'form_agendamento', referencia);
-                mensagem += '\n\nRef. atendimento: ' + referencia;
-                window.open(`https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`, '_blank');
+                try {
+                    const token = window.turnstile && pattyCaptchaId !== null
+                        ? window.turnstile.getResponse(pattyCaptchaId) : '';
+                    const response = await fetch('/api/leads', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            name: nome, phone, service: servico, reference: ref,
+                            campaign: camp, privacyAcknowledged: document.getElementById('privacy-ack').checked,
+                            website: document.getElementById('patty_site').value,
+                            turnstileToken: token
+                        })
+                    });
+                    const result = await response.json().catch(() => ({}));
+                    if (!response.ok || !result.ok) throw Error(result.error || 'CRM indisponível');
+                    pattyEvento('crm_lead_saved', {lead_reference: ref, form_service: String(servico).slice(0,100)});
+                    alert.textContent = 'Solicitação registrada. Confirme o envio da mensagem no WhatsApp.';
+                } catch (err) {
+                    // Não perder o atendimento mesmo se a API, Firebase ou captcha estiver indisponível.
+                    // O aviso é explícito: não contabilizar este lead como salvo no CRM.
+                    alert.textContent = 'O cadastro automático não foi confirmado. Continue no WhatsApp; o atendimento permanece disponível.';
+                    pattyEvento('crm_capture_failed', {lead_reference: ref, form_service: String(servico).slice(0,100)});
+                } finally {
+                    registrarCliqueWhatsApp('formulario', servico, 'form_agendamento', ref);
+                    if (tab && !tab.closed) tab.location.href = waUrl;
+                    else window.location.assign(waUrl);
+                    btn.disabled = false;
+                    if (window.turnstile && pattyCaptchaId !== null) window.turnstile.reset(pattyCaptchaId);
+                }
             });
-            
+
             let lastScrollTop = 0;
             const header = document.getElementById('mainHeader');
             window.addEventListener('scroll', function() {
