@@ -516,8 +516,8 @@
                         <input type="text" id="nome" name="nome" autocomplete="name" toolparamdescription="Nome da pessoa que deseja agendar." placeholder="Como podemos te chamar?" required>
                     </div>
                     <div class="form-group">
-                        <label for="whatsapp">Seu WhatsApp (Opcional)</label>
-                        <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" toolparamdescription="WhatsApp opcional para retorno." placeholder="Ex: 48999998888">
+                        <label for="whatsapp">Seu WhatsApp para contato</label>
+                        <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" toolparamdescription="Número para retorno sobre o agendamento." placeholder="Ex: 48999998888" required minlength="10" maxlength="20">
                     </div>
                     <div class="form-group">
                         <label for="servico">Qual serviço você deseja?</label>
@@ -533,6 +533,15 @@
                             <option value="Massoterapia e Terapias">Massoterapia e Terapias</option>
                         </select>
                     </div>
+                    <div class="form-group" style="display:none" aria-hidden="true"><label for="patty_site">Site</label><input type="text" id="patty_site" name="website" tabindex="-1" autocomplete="off"></div>
+                    <div class="form-group" style="font-size:.88rem">
+                        <label style="display:flex;align-items:flex-start;gap:9px;font-weight:400">
+                            <input type="checkbox" id="privacy-ack" required style="width:19px;min-height:19px;flex-shrink:0;margin-top:3px">
+                            <span>Li o <a href="/privacidade.html" target="_blank" rel="noopener noreferrer" style="color:#fff;text-decoration:underline">aviso de privacidade</a> e estou ciente do uso dos dados para atender meu pedido de agendamento.</span>
+                        </label>
+                    </div>
+                    <div id="patty-turnstile" style="margin-bottom:12px"></div>
+                    <p id="patty-crm-alert" class="form-note" role="status"></p>
                     <button type="submit" class="btn-submit">Agendar via WhatsApp</button>
                 </form>
             </div>
@@ -944,16 +953,50 @@
     </a>
 
     <script>
-        // Analytics: todos os pontos de acesso ao WhatsApp usam o mesmo evento.
-        // Dados pessoais e o texto da mensagem NÃO são enviados ao GA4.
-        function registrarCliqueWhatsApp(area, servico, botao) {
+        // Eventos de intenção: não equivalem a mensagens recebidas ou agendamentos.
+        // Nunca enviar nome, telefone ou conteúdo da mensagem ao GA4/Google Ads.
+        function pattyReferencia() {
+            const random = window.crypto && window.crypto.randomUUID
+                ? window.crypto.randomUUID().replace(/-/g, '').slice(0, 10)
+                : Math.random().toString(36).slice(2, 12).padEnd(10, '0');
+            return 'PTY-' + random.toUpperCase();
+        }
+
+        // Guarda a origem da visita nesta aba, incluindo identificadores Ads para integração futura.
+        // O identificador de clique não é enviado como parâmetro customizado ao Analytics.
+        function pattyCampanha() {
+            const qs = new URLSearchParams(window.location.search);
+            const keys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','gclid','gbraid','wbraid'];
+            let origens = {};
+            try { origens = JSON.parse(sessionStorage.getItem('patty_campaign') || '{}'); } catch (_) {}
+            for (const key of keys) {
+                if (qs.has(key)) origens[key] = String(qs.get(key) || '').slice(0, 150);
+            }
+            try { sessionStorage.setItem('patty_campaign', JSON.stringify(origens)); } catch (_) {}
+            return origens;
+        }
+
+        function pattyEvento(nomeEvento, detalhes) {
+            const campanha = pattyCampanha();
             loadDeferredGTM();
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({
-                event: 'whatsapp_click',
+                event: nomeEvento,
+                ...detalhes,
+                campaign_utm_source: campanha.utm_source || '(nao_informada)',
+                campaign_utm_medium: campanha.utm_medium || '(nao_informada)',
+                campaign_utm_campaign: campanha.utm_campaign || '(nao_informada)',
+                campaign_has_click_id: !!(campanha.gclid || campanha.gbraid || campanha.wbraid)
+            });
+        }
+
+        // Mantém evento e parâmetros da tag WhatsApp atual, sem quebrar conversões existentes.
+        function registrarCliqueWhatsApp(area, servico, botao, referencia) {
+            pattyEvento('whatsapp_click', {
                 whatsapp_area: String(area || 'outros').slice(0, 60),
                 whatsapp_servico: String(servico || 'atendimento_geral').slice(0, 100),
-                whatsapp_botao: String(botao || 'link').slice(0, 60)
+                whatsapp_botao: String(botao || 'link').slice(0, 60),
+                lead_reference: referencia || pattyReferencia()
             });
         }
 
@@ -964,18 +1007,31 @@
             if (!link) return;
             let url;
             try { url = new URL(link.href, window.location.href); } catch (_) { return; }
-            if (!['wa.me', 'api.whatsapp.com', 'web.whatsapp.com'].includes(url.hostname)) return;
-            const cardServico = link.closest('.service-card');
-            const cardEquipe = link.closest('.team-card');
-            const area = cardServico ? 'servicos'
-                : cardEquipe ? 'equipe'
-                : link.classList.contains('whatsapp-float') ? 'flutuante' : 'outros';
-            const card = cardServico || cardEquipe;
-            const servico = card ? (card.querySelector('h3')?.textContent || 'atendimento_geral').trim()
-                : 'atendimento_geral';
-            const botao = cardServico ? 'botao_servico' : cardEquipe ? 'botao_profissional'
-                : area === 'flutuante' ? 'botao_flutuante' : 'link_whatsapp';
-            registrarCliqueWhatsApp(area, servico, botao);
+            if (['wa.me', 'api.whatsapp.com', 'web.whatsapp.com'].includes(url.hostname)) {
+                const cardServico = link.closest('.service-card');
+                const cardEquipe = link.closest('.team-card');
+                const area = cardServico ? 'servicos'
+                    : cardEquipe ? 'equipe'
+                    : link.classList.contains('whatsapp-float') ? 'flutuante' : 'outros';
+                const card = cardServico || cardEquipe;
+                const servico = card ? (card.querySelector('h3')?.textContent || 'atendimento_geral').trim()
+                    : 'atendimento_geral';
+                const botao = cardServico ? 'botao_servico' : cardEquipe ? 'botao_profissional'
+                    : area === 'flutuante' ? 'botao_flutuante' : 'link_whatsapp';
+                const ref = pattyReferencia();
+                if (link.dataset.whatsappTextoOriginal === undefined) {
+                    link.dataset.whatsappTextoOriginal = url.searchParams.get('text') || '';
+                }
+                url.searchParams.set('text', link.dataset.whatsappTextoOriginal + '\n\nRef. atendimento: ' + ref);
+                link.href = url.toString();
+                registrarCliqueWhatsApp(area, servico, botao, ref);
+            } else if (url.protocol === 'tel:') {
+                pattyEvento('phone_click', {
+                    phone_area: String(link.dataset.contactLocation || 'site').slice(0, 60),
+                    contact_channel: 'telefone',
+                    lead_reference: pattyReferencia()
+                });
+            }
         }, { capture: true });
 
         function loadDeferredGTM() {
@@ -1052,21 +1108,82 @@
                 }, { once:true });
             });
 
+            // O site continua encaminhando a cliente ao WhatsApp Business.
+            // O CRM salva o lead primeiro, sem publicar nome/telefone no GA4.
             const agendamentoForm = document.getElementById('agendamentoForm');
-            agendamentoForm.addEventListener('submit', function(event) {
+            let pattyCaptchaId = null;
+            let pattyCaptchaConfig = null;
+            (async function configurarVerificacao() {
+                try {
+                    const response = await fetch('/api/config', {cache:'no-store'});
+                    if (!response.ok) return;
+                    pattyCaptchaConfig = await response.json();
+                    if (!pattyCaptchaConfig.turnstileSiteKey) return;
+                    const script = document.createElement('script');
+                    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+                    script.async = true;
+                    script.onload = () => {
+                        if (window.turnstile) pattyCaptchaId = window.turnstile.render('#patty-turnstile', {
+                            sitekey: pattyCaptchaConfig.turnstileSiteKey
+                        });
+                    };
+                    document.head.appendChild(script);
+                } catch (_) { /* fallback para WhatsApp, sem alegar captação */ }
+            })();
+            agendamentoForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
-                const numeroWhatsApp = '5548988032478'; 
-                const nome = document.getElementById('nome').value;
+                if (!agendamentoForm.reportValidity()) return;
+                const nome = document.getElementById('nome').value.trim();
                 const servico = document.getElementById('servico').value;
-                const whatsappOpcional = document.getElementById('whatsapp').value;
-                
-                let mensagem = `Olá, me chamo ${nome}, escolhi o serviço de *${servico}* e gostaria de agendar um horário.`;
-                if(whatsappOpcional) { mensagem += ` Meu número para contato é ${whatsappOpcional}.`; }
-                
-                registrarCliqueWhatsApp('formulario', servico, 'form_agendamento');
-                window.open(`https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`, '_blank');
+                const phone = document.getElementById('whatsapp').value.trim();
+                const ref = pattyReferencia();
+                const camp = pattyCampanha();
+                const alert = document.getElementById('patty-crm-alert');
+                const btn = agendamentoForm.querySelector('button[type="submit"]');
+                const msg = 'Olá, me chamo ' + nome + ', escolhi o serviço de *' + servico
+                  + '* e gostaria de agendar um horário. Meu WhatsApp é ' + phone
+                  + '.\n\nRef. atendimento: ' + ref;
+                const waUrl = 'https://wa.me/5548988032478?text=' + encodeURIComponent(msg);
+                // Abre uma janela ainda no gesto do usuário; evita bloqueio após a chamada assíncrona.
+                const tab = window.open('about:blank', '_blank');
+                if (tab) tab.document.body.textContent = 'Preparando seu atendimento no WhatsApp...';
+                btn.disabled = true;
+                alert.textContent = 'Registrando sua solicitação...';
+                pattyEvento('form_agendamento_submit', {
+                    form_name: 'agendamento_hero', form_service: String(servico).slice(0, 100),
+                    form_has_phone: true, lead_reference: ref
+                });
+                try {
+                    const token = window.turnstile && pattyCaptchaId !== null
+                        ? window.turnstile.getResponse(pattyCaptchaId) : '';
+                    const response = await fetch('/api/leads', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            name: nome, phone, service: servico, reference: ref,
+                            campaign: camp, privacyAcknowledged: document.getElementById('privacy-ack').checked,
+                            website: document.getElementById('patty_site').value,
+                            turnstileToken: token
+                        })
+                    });
+                    const result = await response.json().catch(() => ({}));
+                    if (!response.ok || !result.ok) throw Error(result.error || 'CRM indisponível');
+                    pattyEvento('crm_lead_saved', {lead_reference: ref, form_service: String(servico).slice(0,100)});
+                    alert.textContent = 'Solicitação registrada. Confirme o envio da mensagem no WhatsApp.';
+                } catch (err) {
+                    // Não perder o atendimento mesmo se a API, Firebase ou captcha estiver indisponível.
+                    // O aviso é explícito: não contabilizar este lead como salvo no CRM.
+                    alert.textContent = 'O cadastro automático não foi confirmado. Continue no WhatsApp; o atendimento permanece disponível.';
+                    pattyEvento('crm_capture_failed', {lead_reference: ref, form_service: String(servico).slice(0,100)});
+                } finally {
+                    registrarCliqueWhatsApp('formulario', servico, 'form_agendamento', ref);
+                    if (tab && !tab.closed) tab.location.href = waUrl;
+                    else window.location.assign(waUrl);
+                    btn.disabled = false;
+                    if (window.turnstile && pattyCaptchaId !== null) window.turnstile.reset(pattyCaptchaId);
+                }
             });
-            
+
             let lastScrollTop = 0;
             const header = document.getElementById('mainHeader');
             window.addEventListener('scroll', function() {
