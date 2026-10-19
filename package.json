@@ -1,0 +1,13 @@
+{
+  "name": "patty-centro-beleza-site-crm",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "check": "node --check api/leads.js && node --check api/config.js && node --check api/crm/leads.js && node --check lib/firebase.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  },
+  "engines": { "node": ">=20" }
+}
