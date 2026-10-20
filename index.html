@@ -478,6 +478,12 @@
         }
 
     
+        /* Converte interesse nos reels para contato identificado sem enviar a pessoa ao Instagram */
+        .patty-reels-conversion{margin:22px auto 0;text-align:center;max-width:620px;}
+        .patty-reels-conversion p{margin:0 0 12px;line-height:1.5}
+        .patty-reels-cta{display:inline-block;padding:13px 19px;border-radius:9px;
+          text-decoration:none;background:#801a39;color:#fff;font-weight:700;}
+        .patty-reels-cta:hover,.patty-reels-cta:focus{background:#66102b;color:#fff}
         /* Captura opcional, sem impedir atendimento direto no WhatsApp */
         #patty-servico-modal[hidden] { display:none!important; }
         #patty-servico-modal {position:fixed;inset:0;z-index:10050;background:rgba(20,9,15,.72);display:flex;justify-content:center;align-items:center;padding:16px;}
@@ -900,6 +906,11 @@
                         <span class="reel-caption" aria-hidden="true">Produção especial</span>
                     </button>
                 </div>
+                <div class="patty-reels-conversion">
+                    <p>Gostou do resultado? Nossa equipe pode ajudar você a escolher o serviço ideal.</p>
+                    <a class="patty-reels-cta" href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20vi%20os%20v%C3%ADdeos%20do%20site%20e%20gostaria%20de%20agendar."
+                       target="_blank" rel="noopener noreferrer">Quero agendar um atendimento pelo WhatsApp</a>
+                </div>
             </div>
         </section>
 
@@ -1308,6 +1319,13 @@
                 card.addEventListener('click', () => {
                     if (card.dataset.loaded === '1') return;
                     const reelId = card.dataset.reelId;
+                    window.pattyUltimoReelId = String(reelId || '').slice(0,30);
+                    window.pattyUltimoReelLabel = (card.querySelector('.reel-caption')?.textContent || 'Atendimento').trim();
+                    pattyEvento('reel_play', {
+                        reel_id: window.pattyUltimoReelId,
+                        reel_label: window.pattyUltimoReelLabel.slice(0,80),
+                        reel_location: 'destaques'
+                    });
                     const iframe = document.createElement('iframe');
                     iframe.title = 'Reel do Patty Centro de Beleza';
                     iframe.src = 'https://www.instagram.com/reel/' + reelId + '/embed/?autoplay=1';
