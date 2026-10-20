@@ -20,6 +20,8 @@ const encode = doc => {
   return { id: doc.id, reference: d.reference, name: d.name, phone: d.phone,
     service: d.service, source: d.source, campaign: d.campaign || {},
     status: d.status, revenueCents: d.revenueCents,
+    estimatedRevenueCents: d.estimatedRevenueCents ?? null,
+    lostReason: d.lostReason || null, isTest: d.isTest === true,
     appointmentDate: d.appointmentDate || null, notes: d.notes || "",
     createdAt: toIso(d.createdAt), updatedAt: toIso(d.updatedAt) };
 };
@@ -40,10 +42,13 @@ export default async function handler(req, res) {
       const notes = getText(body.notes, 600);
       const date = body.appointmentDate || null;
       const revenue = body.revenueCents ?? null;
+      const expected = body.estimatedRevenueCents ?? null;
+      const isTest = body.isTest === true;
       if (name.length < 2 || phone.length < 10 || phone.length > 13 ||
           !services.has(service) || !manualSources.has(source) ||
           !statuses.has(status) || (date && !validDate(date)) ||
-          (revenue !== null && (!Number.isSafeInteger(revenue) || revenue < 0 || revenue > 100000000))) {
+          (revenue !== null && (!Number.isSafeInteger(revenue) || revenue < 0 || revenue > 100000000)) ||
+          (expected !== null && (!Number.isSafeInteger(expected) || expected < 0 || expected > 100000000))) {
         return send(res, 400, { error: "Revise nome, telefone, serviço, origem e dados do atendimento" });
       }
       if (status === "agendado" && !date)
@@ -65,6 +70,10 @@ export default async function handler(req, res) {
       await coll.doc(reference).create({
         reference, name, phone, service, source: "cadastro_manual_" + source,
         campaign: {}, status, notes, appointmentDate: date, revenueCents: revenue,
+        estimatedRevenueCents: expected, isTest, lostReason: null,
+        ...(status === "agendado" ? {bookedAt: now} : {}),
+        ...(status === "atendido" ? {completedAt: now} : {}),
+        ...(status === "perdido" ? {lostAt: now} : {}),
         createdAt: now, updatedAt: now, updatedBy: staff.email, createdBy: staff.email,
         history: [{status, at: new Date(), by: staff.email}]
       });
@@ -90,6 +99,24 @@ export default async function handler(req, res) {
       if (!statuses.has(body.status)) return send(res, 400, { error: "Status inválido" });
       update.status = body.status;
     }
+    if ("estimatedRevenueCents" in body) {
+      if (body.estimatedRevenueCents !== null &&
+          (!Number.isSafeInteger(body.estimatedRevenueCents) ||
+           body.estimatedRevenueCents < 0 || body.estimatedRevenueCents > 100000000))
+        return send(res, 400, { error: "Previsão de valor inválida" });
+      update.estimatedRevenueCents = body.estimatedRevenueCents;
+    }
+    if ("lostReason" in body) {
+      const reasons = ["preco", "horario", "sem_resposta", "desistencia", "outro"];
+      if (body.lostReason !== null && !reasons.includes(body.lostReason))
+        return send(res, 400, { error: "Motivo de perda inválido" });
+      update.lostReason = body.lostReason;
+    }
+    if ("isTest" in body) {
+      if (typeof body.isTest !== "boolean")
+        return send(res, 400, { error: "Marcador de teste inválido" });
+      update.isTest = body.isTest;
+    }
     if ("revenueCents" in body) {
       if (body.revenueCents !== null &&
           (!Number.isSafeInteger(body.revenueCents) || body.revenueCents < 0 || body.revenueCents > 100000000))
@@ -97,9 +124,7 @@ export default async function handler(req, res) {
       update.revenueCents = body.revenueCents;
     }
     if ("appointmentDate" in body) {
-      if (body.appointmentDate !== null &&
-          (typeof body.appointmentDate !== "string" ||
-           !/^\d{4}-\d{2}-\d{2}$/.test(body.appointmentDate)))
+      if (body.appointmentDate !== null && !validDate(body.appointmentDate))
         return send(res, 400, { error: "Data inválida" });
       update.appointmentDate = body.appointmentDate;
     }
@@ -112,6 +137,9 @@ export default async function handler(req, res) {
       update.updatedAt = firebaseAdmin().firestore.FieldValue.serverTimestamp();
       update.updatedBy = staff.email;
       if (update.status && update.status !== old.data().status) {
+        const field = {em_contato: "firstContactAt", agendado: "bookedAt",
+          atendido: "completedAt", perdido: "lostAt"}[update.status];
+        if (field) update[field] = firebaseAdmin().firestore.FieldValue.serverTimestamp();
         update.history = firebaseAdmin().firestore.FieldValue.arrayUnion({
           status: update.status, at: new Date(), by: staff.email
         });
