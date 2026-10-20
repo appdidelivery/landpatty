@@ -4,6 +4,7 @@ on:
     branches:
       - feature/patty-crm-upstream-20261019
       - feature/patty-crm-sem-cloudflare-20261020
+      - fix/patty-crm-login-feedback-20261020
   pull_request:
     paths:
       - "api/**"
