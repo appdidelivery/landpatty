@@ -5,6 +5,7 @@ on:
       - feature/patty-crm-upstream-20261019
       - feature/patty-crm-sem-cloudflare-20261020
       - feature/patty-crm-captacao-servicos-e-manual-20261020
+      - feature/patty-crm-relatorios-receita-20261020
   pull_request:
     paths:
       - "api/**"
