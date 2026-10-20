@@ -3,7 +3,7 @@ import { db, firebaseAdmin, send } from "../lib/firebase.js";
 import { sanitizeAttribution, legacyCampaignFromAttribution } from "../lib/attribution.js";
 
 const services = new Set([
-  "Cabelos e Cachos", "Nail Design", "Sobrancelhas e Micropigmentação",
+  "A definir", "Cabelos e Cachos", "Nail Design", "Sobrancelhas e Micropigmentação",
   "Estética", "Cílios", "Maquiagem", "Depilação", "Massoterapia e Terapias"
 ]);
 
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
     const phone = onlyString(body.phone, 24).replace(/\D/g, "");
     const service = onlyString(body.service, 100);
     const reference = onlyString(body.reference, 30);
-    const source = body.source === "botao_servico" ? "botao_servico" : "formulario_site";
+    const source = ["botao_servico","botao_whatsapp"].includes(body.source) ? body.source : "formulario_site";
     if (name.length < 2 || phone.length < 10 || phone.length > 13 ||
         !services.has(service) || !/^PTY-[A-Z0-9]{10,16}$/.test(reference))
       return send(res, 400, { error: "Dados do agendamento inválidos" });
