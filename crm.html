@@ -88,7 +88,7 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <p class="smallnote">Conversão = leads captados no período cujo estágio atual é Agendado ou Atendido. Receita realizada = valores informados de atendimentos desses leads. Receita futura = soma dos valores previstos em agendamentos confirmados para os próximos 30 dias; não inclui agendamentos sem preço e não é garantia de recebimento. Registros marcados como teste não entram nos indicadores. Google Ads só é identificado quando a origem contém parâmetros de campanha compatíveis; cliques no GA4 não são leads.</p>
 </section>
 <div class="filters"><input id="query" placeholder="Buscar nome, telefone ou serviço" aria-label="Buscar contatos">
-<select id="filter" aria-label="Filtrar por status"><option value="">Todos os status</option><option value="novo">Novos</option><option value="em_contato">Em contato</option><option value="agendado">Agendados</option><option value="atendido">Atendidos</option><option value="perdido">Perdidos</option></select></div>
+<select id="filter" aria-label="Filtrar por status"><option value="">Todos os status</option><option value="novo">Novos</option><option value="em_contato">Em contato</option><option value="agendado">Agendados</option><option value="atendido">Atendidos</option><option value="perdido">Perdidos</option><option value="followup_due">Retornos para hoje/atrasados</option></select></div>
 <p id="notice" class="muted" role="status"></p><div class="lead-list" id="leads"></div>
 <p style="margin:18px 0"><button id="more" class="secondary hidden">Carregar mais leads</button></p>
 <p class="footnote">Os indicadores acima resumem apenas os registros carregados. Dados pessoais não são enviados ao GA4.</p>
@@ -233,15 +233,37 @@ async function refreshInsights() {
   } catch(e) { $("insights-notice").textContent="Não foi possível carregar os indicadores: "+e.message; }
 }
 $("insight-days").onchange=refreshInsights;
+function localToday() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"
+  }).formatToParts(new Date());
+  const p = k => parts.find(x=>x.type===k)?.value;
+  return p("year")+"-"+p("month")+"-"+p("day");
+}
+function needsFollowUp(d, today) {
+  return !!d.followUpDate && d.followUpDate <= today &&
+    ["novo","em_contato"].includes(d.status) && !d.isTest;
+}
 function render() {
-  const q = $("query").value.toLowerCase(), st = $("filter").value;
-  const shown = data.filter(d => (!st || d.status===st) &&
+  const q = $("query").value.toLowerCase(), st = $("filter").value, today=localToday();
+  const shown = data.filter(d =>
+    (!st || (st==="followup_due" ? needsFollowUp(d,today) : d.status===st)) &&
     [d.name,d.phone,d.service,d.reference].some(v=>String(v||"").toLowerCase().includes(q)));
   $("count").textContent = data.length;
   $("new").textContent = data.filter(d=>d.status==="novo").length;
   $("booked").textContent = data.filter(d=>d.status==="agendado").length;
   $("attended").textContent = data.filter(d=>d.status==="atendido").length;
-  $("leads").innerHTML = shown.map(d=>'<article class="lead"><div><h3>'+escapeHtml(d.name)+'</h3><p>'+escapeHtml(d.service)+' · '+escapeHtml(d.phone)+'</p><p>'+escapeHtml(d.createdAt?.slice(0,10)||"")+' · '+escapeHtml(d.campaign?.utm_source || d.source)+'</p></div><div style="text-align:right"><div class="tag">'+escapeHtml(statuses[d.status]||d.status)+'</div><button type="button" data-id="'+escapeHtml(d.id)+'" style="margin-top:9px">Abrir</button></div></article>').join("");
+  $("leads").innerHTML = shown.map(d=>{
+    const follow=needsFollowUp(d,today) ? '<p style="color:#a02445;font-weight:700">Retorno pendente: '+escapeHtml(d.followUpDate)+'</p>' :
+      d.followUpDate ? '<p>Retorno: '+escapeHtml(d.followUpDate)+'</p>' : '';
+    const test=d.isTest ? ' · TESTE (fora dos relatórios)' : '';
+    return '<article class="lead"><div><h3>'+escapeHtml(d.name)+'</h3><p>'+escapeHtml(d.service)+' · '+
+      escapeHtml(d.phone)+'</p><p>'+escapeHtml(d.createdAt?.slice(0,10)||"")+' · '+
+      escapeHtml(d.campaign?.utm_source || d.source)+escapeHtml(test)+'</p>'+follow+
+      '</div><div style="text-align:right"><div class="tag">'+escapeHtml(statuses[d.status]||d.status)+
+      '</div><button type="button" data-id="'+escapeHtml(d.id)+
+      '" style="margin-top:9px">Abrir</button></div></article>';
+  }).join("");
   $("leads").querySelectorAll("[data-id]").forEach(b=>b.addEventListener("click",()=>openLead(b.dataset.id)));
 }
 function openLead(id) {
