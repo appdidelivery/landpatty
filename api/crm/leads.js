@@ -19,6 +19,7 @@ const encode = doc => {
   const toIso = v => v?.toDate ? v.toDate().toISOString() : null;
   return { id: doc.id, reference: d.reference, name: d.name, phone: d.phone,
     service: d.service, source: d.source, campaign: d.campaign || {},
+    attribution: d.attribution || null, cta: d.cta || null,
     status: d.status, revenueCents: d.revenueCents,
     estimatedRevenueCents: d.estimatedRevenueCents ?? null,
     lostReason: d.lostReason || null, isTest: d.isTest === true,
