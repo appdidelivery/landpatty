@@ -540,7 +540,6 @@
                             <span>Li o <a href="/privacidade.html" target="_blank" rel="noopener noreferrer" style="color:#fff;text-decoration:underline">aviso de privacidade</a> e estou ciente do uso dos dados para atender meu pedido de agendamento.</span>
                         </label>
                     </div>
-                    <div id="patty-turnstile" style="margin-bottom:12px"></div>
                     <p id="patty-crm-alert" class="form-note" role="status"></p>
                     <button type="submit" class="btn-submit">Agendar via WhatsApp</button>
                 </form>
@@ -1111,25 +1110,6 @@
             // O site continua encaminhando a cliente ao WhatsApp Business.
             // O CRM salva o lead primeiro, sem publicar nome/telefone no GA4.
             const agendamentoForm = document.getElementById('agendamentoForm');
-            let pattyCaptchaId = null;
-            let pattyCaptchaConfig = null;
-            (async function configurarVerificacao() {
-                try {
-                    const response = await fetch('/api/config', {cache:'no-store'});
-                    if (!response.ok) return;
-                    pattyCaptchaConfig = await response.json();
-                    if (!pattyCaptchaConfig.turnstileSiteKey) return;
-                    const script = document.createElement('script');
-                    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-                    script.async = true;
-                    script.onload = () => {
-                        if (window.turnstile) pattyCaptchaId = window.turnstile.render('#patty-turnstile', {
-                            sitekey: pattyCaptchaConfig.turnstileSiteKey
-                        });
-                    };
-                    document.head.appendChild(script);
-                } catch (_) { /* fallback para WhatsApp, sem alegar captação */ }
-            })();
             agendamentoForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
                 if (!agendamentoForm.reportValidity()) return;
@@ -1154,16 +1134,13 @@
                     form_has_phone: true, lead_reference: ref
                 });
                 try {
-                    const token = window.turnstile && pattyCaptchaId !== null
-                        ? window.turnstile.getResponse(pattyCaptchaId) : '';
                     const response = await fetch('/api/leads', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({
                             name: nome, phone, service: servico, reference: ref,
                             campaign: camp, privacyAcknowledged: document.getElementById('privacy-ack').checked,
-                            website: document.getElementById('patty_site').value,
-                            turnstileToken: token
+                            website: document.getElementById('patty_site').value
                         })
                     });
                     const result = await response.json().catch(() => ({}));
@@ -1171,7 +1148,7 @@
                     pattyEvento('crm_lead_saved', {lead_reference: ref, form_service: String(servico).slice(0,100)});
                     alert.textContent = 'Solicitação registrada. Confirme o envio da mensagem no WhatsApp.';
                 } catch (err) {
-                    // Não perder o atendimento mesmo se a API, Firebase ou captcha estiver indisponível.
+                    // Não perder o atendimento mesmo se a API, Firebase ou API estiver indisponível.
                     // O aviso é explícito: não contabilizar este lead como salvo no CRM.
                     alert.textContent = 'O cadastro automático não foi confirmado. Continue no WhatsApp; o atendimento permanece disponível.';
                     pattyEvento('crm_capture_failed', {lead_reference: ref, form_service: String(servico).slice(0,100)});
@@ -1180,7 +1157,6 @@
                     if (tab && !tab.closed) tab.location.href = waUrl;
                     else window.location.assign(waUrl);
                     btn.disabled = false;
-                    if (window.turnstile && pattyCaptchaId !== null) window.turnstile.reset(pattyCaptchaId);
                 }
             });
 
