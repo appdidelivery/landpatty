@@ -1,5 +1,6 @@
 import { createHmac } from "node:crypto";
 import { db, firebaseAdmin, send } from "../lib/firebase.js";
+import { sanitizeAttribution, legacyCampaignFromAttribution } from "../lib/attribution.js";
 
 const services = new Set([
   "Cabelos e Cachos", "Nail Design", "Sobrancelhas e Micropigmentação",
@@ -71,17 +72,22 @@ export default async function handler(req, res) {
         !services.has(service) || !/^PTY-[A-Z0-9]{10,16}$/.test(reference))
       return send(res, 400, { error: "Dados do agendamento inválidos" });
 
-    const campaign = {};
-    for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_id",
-                        "utm_content", "utm_term", "gclid", "gbraid", "wbraid"])
-      campaign[key] = onlyString(body.campaign?.[key], 150);
+    // Salva primeira e última origem informadas no navegador, com whitelist estrita.
+    const attribution = sanitizeAttribution(body.attribution, body.campaign);
+    const campaign = legacyCampaignFromAttribution(attribution);
+    const cta = body.cta && typeof body.cta === "object" ? body.cta : {};
+    const ctaArea = onlyString(cta.area,60);
+    const ctaId = onlyString(cta.id,70);
+    const ctaProfessional = onlyString(cta.professional,90);
+    const ctaReelId = onlyString(cta.reelId,30);
 
     const database = db();
     const now = Date.now();
     const leadRef = database.collection("patty_leads").doc(reference);
     const buckets = rateLimitBuckets(req, phone, now, database);
     const data = {
-      reference, name, phone, service, campaign,
+      reference, name, phone, service, campaign, attribution,
+      cta: {area:ctaArea, id:ctaId, professional:ctaProfessional, reelId:ctaReelId},
       source, status: "novo", revenueCents: null,
       appointmentDate: null, notes: "",
       createdAt: firebaseAdmin().firestore.FieldValue.serverTimestamp(),
