@@ -66,6 +66,7 @@ export default async function handler(req, res) {
     const phone = onlyString(body.phone, 24).replace(/\D/g, "");
     const service = onlyString(body.service, 100);
     const reference = onlyString(body.reference, 30);
+    const source = body.source === "botao_servico" ? "botao_servico" : "formulario_site";
     if (name.length < 2 || phone.length < 10 || phone.length > 13 ||
         !services.has(service) || !/^PTY-[A-Z0-9]{10,16}$/.test(reference))
       return send(res, 400, { error: "Dados do agendamento inválidos" });
@@ -81,7 +82,7 @@ export default async function handler(req, res) {
     const buckets = rateLimitBuckets(req, phone, now, database);
     const data = {
       reference, name, phone, service, campaign,
-      source: "formulario_site", status: "novo", revenueCents: null,
+      source, status: "novo", revenueCents: null,
       appointmentDate: null, notes: "",
       createdAt: firebaseAdmin().firestore.FieldValue.serverTimestamp(),
       updatedAt: firebaseAdmin().firestore.FieldValue.serverTimestamp(),
