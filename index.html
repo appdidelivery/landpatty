@@ -1006,18 +1006,51 @@
             return 'PTY-' + random.toUpperCase();
         }
 
-        // Guarda a origem da visita nesta aba, incluindo identificadores Ads para integração futura.
-        // O identificador de clique não é enviado como parâmetro customizado ao Analytics.
-        function pattyCampanha() {
+        // Atribuição restrita à aba atual: não persiste identificadores de publicidade
+        // entre sessões nem os envia ao Analytics. Primeiro/último contato técnico.
+        const pattyMarketingKeys = [
+            'utm_source','utm_medium','utm_campaign','utm_id','utm_content','utm_term',
+            'gclid','gbraid','wbraid','fbclid','msclkid','ttclid','gad_source',
+            'gad_campaignid','campaign_id','adgroup_id','ad_id','creative',
+            'network','device','placement','matchtype','keyword'
+        ];
+        let pattyAtribuicaoCache = null;
+        function pattyAtribuicao() {
+            if (pattyAtribuicaoCache) return pattyAtribuicaoCache;
             const qs = new URLSearchParams(window.location.search);
-            const keys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','gclid','gbraid','wbraid'];
-            let origens = {};
-            try { origens = JSON.parse(sessionStorage.getItem('patty_campaign') || '{}'); } catch (_) {}
-            for (const key of keys) {
-                if (qs.has(key)) origens[key] = String(qs.get(key) || '').slice(0, 150);
+            let anterior = {};
+            try { anterior = JSON.parse(sessionStorage.getItem('patty_attribution_v2') || '{}'); } catch (_) {}
+            const toque = {};
+            let temMarcador = false;
+            for (const key of pattyMarketingKeys) {
+                if (!qs.has(key)) continue;
+                const valor = String(qs.get(key) || '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 150);
+                if (valor) { toque[key] = valor; temMarcador = true; }
             }
-            try { sessionStorage.setItem('patty_campaign', JSON.stringify(origens)); } catch (_) {}
-            return origens;
+            try {
+                const referer = document.referrer ? new URL(document.referrer) : null;
+                if (referer && referer.hostname && referer.hostname !== window.location.hostname
+                    && !referer.hostname.endsWith('.pattycentrodebeleza.com.br')) {
+                    toque.referrerHost = referer.hostname.toLowerCase().slice(0, 120);
+                }
+            } catch (_) {}
+            toque.landingPath = window.location.pathname.slice(0, 180);
+            toque.recordedAt = new Date().toISOString();
+            const touch = Object.fromEntries(Object.entries(toque).filter(([k,v])=>!!v && k!=='landingPath' && k!=='recordedAt'));
+            const meaningful = temMarcador || !!toque.referrerHost;
+            // Navegação direta posterior não apaga uma campanha identificada antes.
+            const firstTouch = anterior.firstTouch && Object.keys(anterior.firstTouch).length
+                ? anterior.firstTouch : toque;
+            const lastTouch = meaningful ? toque : (anterior.lastTouch || firstTouch);
+            pattyAtribuicaoCache = {firstTouch,lastTouch};
+            try { sessionStorage.setItem('patty_attribution_v2', JSON.stringify(pattyAtribuicaoCache)); } catch (_) {}
+            return pattyAtribuicaoCache;
+        }
+        function pattyCampanha() {
+            const attr = pattyAtribuicao();
+            return Object.fromEntries(pattyMarketingKeys
+                .filter(k=>attr.lastTouch?.[k])
+                .map(k=>[k,attr.lastTouch[k]]));
         }
 
         function pattyEvento(nomeEvento, detalhes) {
