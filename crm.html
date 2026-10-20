@@ -42,7 +42,9 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <section id="login-panel" class="panel login"><h1>Acesso da equipe</h1><p class="muted">Somente pessoas autorizadas pela administração do salão.</p>
 <form id="login-form"><label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required>
 <label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required>
-<p id="login-error" class="error" role="alert"></p><button class="primary" type="submit">Entrar no CRM</button></form></section>
+<p id="login-error" class="error" role="alert"></p>
+<div class="actions"><button class="primary" type="submit">Entrar no CRM</button><button id="forgot-password" class="secondary" type="button">Esqueci minha senha</button></div>
+<p id="reset-info" class="muted" role="status"></p></form></section>
 <section id="verify-panel" class="panel login hidden">
 <h1>Confirme seu e-mail</h1>
 <p class="muted">Para proteger os dados das clientes, confirme o endereço de e-mail antes de acessar o painel. Verifique também a caixa de spam.</p>
@@ -78,7 +80,7 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 </section></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, reload } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut, sendEmailVerification, reload } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 const $ = id => document.getElementById(id);
 let auth, data = [], nextCursor = null, selected = null, loading = false;
 const statuses = {novo:"Novo",em_contato:"Em conversa",agendado:"Agendado",atendido:"Atendido",perdido:"Perdido"};
@@ -183,10 +185,53 @@ $("verify-retry").onclick=async()=>{
   }catch(_){$("verify-info").textContent="Não foi possível conferir agora. Tente novamente."}
   finally{$("verify-retry").disabled=false}
 };
+function loginErrorMessage(err) {
+  const code = typeof err?.code === "string" && err.code.startsWith("auth/") ? err.code : "";
+  const explanations = {
+    "auth/invalid-credential": "E-mail ou senha não conferem, ou a conta ainda não foi criada no Firebase Authentication.",
+    "auth/wrong-password": "E-mail ou senha incorretos.",
+    "auth/user-not-found": "Conta não encontrada no Firebase Authentication.",
+    "auth/invalid-email": "Formato do e-mail inválido.",
+    "auth/too-many-requests": "Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.",
+    "auth/network-request-failed": "Falha de conexão. Verifique a rede e tente novamente.",
+    "auth/operation-not-allowed": "Ative o provedor E-mail/Senha no Firebase Authentication.",
+    "auth/invalid-api-key": "A configuração pública do Firebase na Vercel precisa ser corrigida.",
+    "auth/api-key-not-valid.-please-pass-a-valid-api-key.": "A configuração pública do Firebase na Vercel precisa ser corrigida.",
+    "auth/unauthorized-domain": "O domínio do CRM precisa ser autorizado no Firebase Authentication.",
+    "auth/app-not-authorized": "Aplicativo não autorizado nas configurações do Firebase.",
+    "auth/configuration-not-found": "Configuração de Authentication ausente ou projeto Firebase incorreto.",
+    "auth/invalid-password": "Confira a senha informada."
+  };
+  return (explanations[code] || "Não foi possível autenticar. Confirme o cadastro no Firebase e a configuração da Vercel.") +
+    (code ? " (Código: " + code + ")" : "");
+}
 $("login-form").onsubmit=async e=>{
-  e.preventDefault(); $("login-error").textContent="";
-  try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value)}
-  catch(_) {$("login-error").textContent="Não foi possível entrar. Verifique o acesso com a administração."}
+  e.preventDefault(); $("login-error").textContent=""; $("reset-info").textContent="";
+  try{
+    if(!auth) throw new Error("Firebase ainda não inicializado");
+    await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value);
+  }catch(err){$("login-error").textContent=loginErrorMessage(err);}
+};
+$("forgot-password").onclick=async()=>{
+  $("login-error").textContent="";
+  const email=$("email").value.trim();
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    $("reset-info").textContent="Informe um e-mail válido antes de solicitar a recuperação.";
+    return;
+  }
+  $("forgot-password").disabled=true;
+  try{
+    await sendPasswordResetEmail(auth,email);
+    $("reset-info").textContent="Se houver uma conta para esse e-mail, confira a caixa de entrada e o spam para redefinir a senha.";
+  }catch(err){
+    if(err?.code==="auth/too-many-requests"){
+      $("reset-info").textContent="Aguarde alguns minutos antes de tentar novamente.";
+    }else if(err?.code==="auth/network-request-failed"){
+      $("reset-info").textContent="Falha de conexão. Tente novamente.";
+    }else {
+      $("reset-info").textContent="Se a conta estiver cadastrada, a recuperação poderá ser solicitada. Confira o cadastro com a administração.";
+    }
+  }finally{$("forgot-password").disabled=false;}
 };
 (async()=>{
   try{
