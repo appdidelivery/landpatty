@@ -65,3 +65,28 @@ Esta solução evita novos provedores, mas NÃO possui desafio anti-bot interati
 - Teste manual: criar lead de WhatsApp e verificar a origem `cadastro_manual_whatsapp` no painel; mudar status, data e receita; recarregar a página.
 - Teste de CTA: clicar em cada um dos oito serviços, optar por cadastrar (lead deve surgir no Firestore), escolher continuar sem dados (não deve surgir lead), cancelar (sem `whatsapp_click`).
 - Validar UI no smartphone, click events GTM, deduplicação e tratamento de erros.
+
+
+## Painel comercial: conversão e previsibilidade
+
+Após merge e deploy, o CRM apresenta:
+- Resultados por coorte de leads CRIADOS nos últimos 7 ou 30 dias: quantidade, status atual, porcentagem que chegou a agendado/atendido, receita efetivamente registrada, ticket médio e divisão por serviço/origem;
+- Agenda futura de 30 dias: SOMA do valor previsto INFORMADO em cada agendamento confirmado, com contagem dos agendamentos ainda sem valor. **Não se trata de faturamento garantido**;
+- Retornos vencidos de contatos ainda abertos. Defina a data de retorno no cadastro manual ou no detalhe;
+- Motivos dos leads perdidos, para orientar ações comerciais;
+- Marcador "registro de teste": excluir testes dos relatórios (inclusive o teste inicial feito antes desta atualização).
+
+### Procedimento para Ana
+1. Receber contato pelo site (automático) ou criar **Novo lead** para o que chegou diretamente por WhatsApp/Instagram/indicação.
+2. Definir serviço, origem, data de retorno se precisar responder novamente e valor PREVISTO quando houver orçamento real.
+3. Mover para "Agendado" ao confirmar data (registre também data e valor estimado). Nenhuma estimativa é receita recebida.
+4. Mover para "Atendido" depois do serviço, registrando o valor EFETIVAMENTE recebido. O campo de receita realizada não deve ser preenchido com previsões.
+5. Se não fechar, marcar "Perdido" e informar motivo. Registros fictícios: marcar "registro de teste".
+
+### Atenções métricas
+- "Receita realizada" nos relatórios é relativa aos leads criados no período, não equivale ao movimento financeiro/caixa do período. Evitar usar como conciliação fiscal ou relatório contábil.
+- Indicadores dos cartões superiores antigos contam registros CARREGADOS no navegador; use a seção "Resultados comerciais" para indicadores agregados de coorte e agenda, que não incluem testes.
+- A origem Google Ads só é reconhecida se o cadastro tiver os respectivos parâmetros identificáveis; não converter cliques GA4 em clientes.
+- Relatórios têm limite de 1.000 registros por consulta e exibem aviso quando são parciais. Para redes maiores será necessário implementar agregação no servidor.
+- CPA real e ROAS só poderão ser calculados com despesa comprovada, atribuição confiável e receita realizada; não inferir retorno de investimento apenas de cliques.
+- Não existe automação para capturar mensagem recebida no WhatsApp Business aplicativo sem integração oficial em coexistência.
