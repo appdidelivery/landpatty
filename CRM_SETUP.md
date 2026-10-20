@@ -52,3 +52,16 @@ Esta atualização remove a exigência de conta Cloudflare. A validação de env
 ## Observação sobre proteção anti-spam
 
 Esta solução evita novos provedores, mas NÃO possui desafio anti-bot interativo. Use monitoramento de custos e tráfego, e considere ativar proteção adicional caso seja detectado abuso. Limites atuais: 3 envios em 15 minutos e 12/dia por telefone, além de 8 em 15 minutos e 40/dia por IP Vercel. O cliente sempre pode continuar pelo WhatsApp. Os documentos de limite incluem expiresAt; configurar TTL da coleção para limpeza automática é recomendado.
+
+## Próxima evolução — cadastro manual e botões de serviços
+
+- Cadastro manual em **Novo lead** com nome, telefone, origem, serviço, etapa, data, valor e observações; exige Firebase Auth e allowlist do CRM.
+- Backend `POST /api/crm/leads` usa token Firebase, valida os campos e evita duplicação de mesmo serviço/telefone nas últimas 24h, quando o lead ainda está aberto.
+- Nos cartões de serviços, o primeiro clique abre uma escolha: cadastrar nome/WhatsApp para acompanhamento no CRM ou continuar diretamente para o WhatsApp, sem cadastro.
+- Cadastro rápido salva como `source=botao_servico` após ciência do aviso; o botão direto conta somente um evento `whatsapp_click` de intenção, sem pessoa identificada.
+- Ao abrir a janela de cadastro, o evento é `whatsapp_cta_open`; `whatsapp_click` só ocorre quando a pessoa decide continuar ao WhatsApp. `crm_lead_saved` exige sucesso do backend.
+- Botões da equipe e flutuante ainda permitem contato direto, registrando apenas cliques anônimos; isso NÃO confirma uma mensagem recebida. Captura automática da conversa exige conexão oficial WhatsApp Business Platform em coexistência, se elegível.
+- Registros de testes devem ser separados dos leads de clientes reais. O site não confirma o envio efetivo da mensagem pelo WhatsApp.
+- Teste manual: criar lead de WhatsApp e verificar a origem `cadastro_manual_whatsapp` no painel; mudar status, data e receita; recarregar a página.
+- Teste de CTA: clicar em cada um dos oito serviços, optar por cadastrar (lead deve surgir no Firestore), escolher continuar sem dados (não deve surgir lead), cancelar (sem `whatsapp_click`).
+- Validar UI no smartphone, click events GTM, deduplicação e tratamento de erros.

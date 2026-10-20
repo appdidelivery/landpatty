@@ -1,7 +1,19 @@
+import { randomBytes } from "node:crypto";
 import { db, firebaseAdmin, requireStaff, send } from "../../lib/firebase.js";
 
 const statuses = new Set(["novo", "em_contato", "agendado", "atendido", "perdido"]);
 const getText = (v, limit) => typeof v === "string" ? v.trim().slice(0, limit) : "";
+const manualSources = new Set(["whatsapp", "instagram", "indicacao", "telefone", "outro"]);
+const services = new Set([
+  "A definir", "Cabelos e Cachos", "Nail Design",
+  "Sobrancelhas e Micropigmentação", "Estética", "Cílios",
+  "Maquiagem", "Depilação", "Massoterapia e Terapias"
+]);
+const validDate = value => typeof value === "string" &&
+  /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+  !Number.isNaN(Date.parse(value + "T12:00:00Z")) &&
+  new Date(value + "T12:00:00Z").toISOString().startsWith(value);
+
 const encode = doc => {
   const d = doc.data();
   const toIso = v => v?.toDate ? v.toDate().toISOString() : null;
@@ -13,11 +25,51 @@ const encode = doc => {
 };
 
 export default async function handler(req, res) {
-  if (!["GET", "PATCH"].includes(req.method))
+  if (!["GET", "POST", "PATCH"].includes(req.method))
     return send(res, 405, { error: "Método não permitido" });
   try {
     const staff = await requireStaff(req);
     const coll = db().collection("patty_leads");
+    if (req.method === "POST") {
+      const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+      const name = getText(body.name, 120);
+      const phone = getText(body.phone, 24).replace(/\D/g, "");
+      const service = getText(body.service, 100) || "A definir";
+      const source = getText(body.source, 30);
+      const status = getText(body.status, 20) || "novo";
+      const notes = getText(body.notes, 600);
+      const date = body.appointmentDate || null;
+      const revenue = body.revenueCents ?? null;
+      if (name.length < 2 || phone.length < 10 || phone.length > 13 ||
+          !services.has(service) || !manualSources.has(source) ||
+          !statuses.has(status) || (date && !validDate(date)) ||
+          (revenue !== null && (!Number.isSafeInteger(revenue) || revenue < 0 || revenue > 100000000))) {
+        return send(res, 400, { error: "Revise nome, telefone, serviço, origem e dados do atendimento" });
+      }
+      if (status === "agendado" && !date)
+        return send(res, 400, { error: "Informe a data do agendamento" });
+      if (status === "atendido" && revenue === null)
+        return send(res, 400, { error: "Informe o valor recebido, mesmo que seja zero" });
+      // Evita duplicar um contato ativo recente quando o atendente tenta salvar duas vezes.
+      const recent = await coll.where("phone", "==", phone).limit(10).get();
+      const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+      const duplicate = recent.docs.find(d => {
+        const lead = d.data();
+        const ms = lead.createdAt?.toMillis?.() || 0;
+        return lead.service === service && ms >= cutoff && lead.status !== "atendido" && lead.status !== "perdido";
+      });
+      if (duplicate)
+        return send(res, 409, { error: "Este telefone e serviço já têm um lead recente no CRM. Abra o cadastro existente.", reference: duplicate.id });
+      const reference = "PTY-" + randomBytes(6).toString("hex").toUpperCase();
+      const now = firebaseAdmin().firestore.FieldValue.serverTimestamp();
+      await coll.doc(reference).create({
+        reference, name, phone, service, source: "cadastro_manual_" + source,
+        campaign: {}, status, notes, appointmentDate: date, revenueCents: revenue,
+        createdAt: now, updatedAt: now, updatedBy: staff.email, createdBy: staff.email,
+        history: [{status, at: new Date(), by: staff.email}]
+      });
+      return send(res, 201, {ok: true, reference});
+    }
     if (req.method === "GET") {
       let q = coll.orderBy("createdAt", "desc").limit(100);
       if (req.query.cursor) {
