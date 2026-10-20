@@ -34,6 +34,19 @@ details{border:1px solid var(--line);padding:10px;border-radius:10px;margin:14px
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
 a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 @media(max-width:700px){.cards{grid-template-columns:repeat(2,1fr)}header strong{font-size:17px}main{margin:15px auto}.fields{grid-template-columns:1fr}.drawer .panel{border-radius:0}}
+
+.insights-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.insights-header h2{margin:0;font-size:21px}
+.insights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.insights-grid .metric{background:var(--bg)}
+.insights-tables{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.insights-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.insights-table th,.insights-table td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}
+.insights-table th:last-child,.insights-table td:last-child{text-align:right}
+.insights-warning{font-size:13px;color:#9d4451}
+.smallnote{font-size:12px;color:var(--muted)}
+.insights-list{max-height:300px;overflow:auto}
+@media(max-width:850px){.insights-grid{grid-template-columns:repeat(2,1fr)}.insights-tables{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -58,6 +71,22 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <div class="metric"><span>Agendados</span><strong id="booked">0</strong></div>
 <div class="metric"><span>Atendidos</span><strong id="attended">0</strong></div>
 </div>
+<section id="insights-panel" class="panel" style="margin:0 0 20px">
+<div class="insights-header">
+ <div><h2>Resultados comerciais</h2><p class="smallnote">Agendamentos e receita registrados pela equipe — não são cliques de anúncios</p></div>
+ <div><label for="insight-days" style="margin:0">Leads captados em</label><select id="insight-days" style="min-width:140px">
+  <option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option>
+ </select></div>
+</div>
+<p id="insights-notice" class="muted" role="status">Carregando indicadores...</p>
+<div class="insights-grid" id="insights-cards"></div>
+<div class="insights-tables">
+ <div><h3>Por serviço</h3><div id="insights-services" class="insights-list"></div></div>
+ <div><h3>Por origem</h3><div id="insights-channels" class="insights-list"></div></div>
+</div>
+<div id="insights-loss"></div>
+<p class="smallnote">Conversão = leads captados no período cujo estágio atual é Agendado ou Atendido. Receita realizada = valores informados de atendimentos desses leads. Receita futura = soma dos valores previstos em agendamentos confirmados para os próximos 30 dias; não inclui agendamentos sem preço e não é garantia de recebimento. Registros marcados como teste não entram nos indicadores. Google Ads só é identificado quando a origem contém parâmetros de campanha compatíveis; cliques no GA4 não são leads.</p>
+</section>
 <div class="filters"><input id="query" placeholder="Buscar nome, telefone ou serviço" aria-label="Buscar contatos">
 <select id="filter" aria-label="Filtrar por status"><option value="">Todos os status</option><option value="novo">Novos</option><option value="em_contato">Em contato</option><option value="agendado">Agendados</option><option value="atendido">Atendidos</option><option value="perdido">Perdidos</option></select></div>
 <p id="notice" class="muted" role="status"></p><div class="lead-list" id="leads"></div>
@@ -90,7 +119,11 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <option value="agendado">Agendado</option><option value="atendido">Atendido</option>
 <option value="perdido">Perdido</option></select></div>
 <div><label for="manual-date">Data agendada</label><input id="manual-date" type="date"></div>
+<div><label for="manual-estimate">Valor previsto (R$)</label><input id="manual-estimate" inputmode="decimal" placeholder="Ex: 120,00"></div>
 <div><label for="manual-revenue">Valor recebido (R$)</label><input id="manual-revenue" inputmode="decimal" placeholder="Ex: 120,00"></div>
+<div class="full"><label style="display:flex;align-items:center;gap:8px">
+<input id="manual-test" type="checkbox" style="width:18px;min-height:18px">
+Cadastro de teste (não incluir nos relatórios)</label></div>
 <div class="full"><label for="manual-notes">Observações</label><textarea id="manual-notes" rows="3" maxlength="600" placeholder="O que o cliente perguntou? O que falta para agendar?"></textarea></div>
 <div class="full"><p id="manual-error" class="error" role="alert"></p>
 <button id="manual-save" class="primary" type="submit">Salvar contato</button></div>
@@ -101,7 +134,15 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <p id="detail-service"></p><p id="detail-origin" class="muted"></p><div class="fields">
 <div class="full"><label for="detail-status">Situação</label><select id="detail-status"><option value="novo">Novo lead</option><option value="em_contato">Em conversa</option><option value="agendado">Agendado</option><option value="atendido">Atendido</option><option value="perdido">Perdido</option></select></div>
 <div><label for="detail-date">Data agendada</label><input type="date" id="detail-date"></div>
-<div><label for="detail-revenue">Valor recebido (R$)</label><input id="detail-revenue" inputmode="decimal" placeholder="Ex: 120,00"></div>
+<div><label for="detail-estimate">Valor previsto (R$)</label><input id="detail-estimate" inputmode="decimal" placeholder="Ex: 120,00"></div>
+<div><label for="detail-revenue">Valor efetivamente recebido (R$)</label><input id="detail-revenue" inputmode="decimal" placeholder="Ex: 120,00"></div>
+<div><label for="detail-loss">Motivo da perda</label><select id="detail-loss">
+<option value="">Não informado</option><option value="preco">Preço</option>
+<option value="horario">Horário</option><option value="sem_resposta">Sem resposta</option>
+<option value="desistencia">Desistência</option><option value="outro">Outro</option></select></div>
+<div class="full"><label style="display:flex;align-items:center;gap:8px">
+<input type="checkbox" id="detail-test" style="width:18px;min-height:18px">
+Registro de teste (não incluir nos relatórios)</label></div>
 <div class="full"><label for="detail-notes">Observações internas</label><textarea id="detail-notes" rows="3" maxlength="600"></textarea></div></div>
 <details><summary>Dados da campanha</summary><p id="detail-campaign" class="muted"></p></details>
 <div class="actions"><a id="open-wa" class="primary" rel="noopener noreferrer" target="_blank">Abrir WhatsApp</a><button id="save" class="primary">Salvar alterações</button></div>
@@ -139,9 +180,55 @@ async function load(reset) {
     $("more").classList.toggle("hidden", !nextCursor);
     $("notice").textContent = data.length ? "Contatos recebidos. Clique em Abrir para atualizar o atendimento." : "Nenhum contato cadastrado ainda.";
     render();
+    if(reset) refreshInsights();
   } catch(e) {$("notice").textContent = e.message;}
   finally {loading=false}
 }
+// Relatórios agregados: a API retorna apenas totais, não dados pessoais.
+const currency = cents => Number.isSafeInteger(cents) ?
+  (cents / 100).toLocaleString("pt-BR", {style:"currency",currency:"BRL"}) : "Não informado";
+function insightMetric(label,value,note) {
+  return '<div class="metric"><span>'+escapeHtml(label)+'</span><strong>'+escapeHtml(value)+
+    '</strong><span>'+escapeHtml(note||"")+'</span></div>';
+}
+function insightTable(items, label) {
+  if(!items?.length) return '<p class="smallnote">Sem registros no período.</p>';
+  return '<table class="insights-table"><thead><tr><th>'+escapeHtml(label)+
+    '</th><th>Leads</th><th>Agend.</th><th>Receita</th></tr></thead><tbody>'+
+    items.map(x=>'<tr><td>'+escapeHtml(x.name)+'</td><td>'+x.leads+
+      '</td><td>'+x.agendados+'</td><td>'+escapeHtml(currency(x.revenueCents))+
+      '</td></tr>').join('')+'</tbody></table>';
+}
+async function refreshInsights() {
+  $("insights-notice").textContent="Atualizando resultados...";
+  try {
+    const days=$("insight-days").value==="30"?30:7;
+    const result=await request("/api/crm/insights?days="+days);
+    const c=result.cohort, a=result.agendaNext30Days;
+    $("insights-cards").innerHTML=[
+      insightMetric("Leads identificados",c.leads,days+" dias, excluindo testes"),
+      insightMetric("Agendados e atendidos",c.agendados+c.atendidos,
+        c.agendamentoRatePercent.toLocaleString("pt-BR")+"% dos leads do período"),
+      insightMetric("Atendimentos concluídos",c.atendidos,
+        c.attendedWithoutValue+" sem valor recebido informado"),
+      insightMetric("Receita realizada",currency(c.realizedRevenueCents),
+        "Atendimentos dos leads captados no período"),
+      insightMetric("Ticket médio realizado",currency(c.averageTicketCents),
+        c.attendedWithValue+" atendimentos com valor informado"),
+      insightMetric("Próximos 30 dias: valor previsto",currency(a.scheduledValueCents),
+        a.appointments+" agendamentos; "+a.withoutEstimate+" sem preço estimado")
+    ].join("");
+    $("insights-services").innerHTML=insightTable(result.byService,"Serviço");
+    $("insights-channels").innerHTML=insightTable(result.byChannel,"Origem");
+    $("insights-loss").innerHTML=result.lossReasons?.length
+      ? '<p class="smallnote"><strong>Motivos de perda:</strong> '+
+        result.lossReasons.map(x=>escapeHtml(x.name)+': '+x.count).join(' · ')+'</p>' : '';
+    $("insights-notice").textContent = result.partial ?
+      "Relatório parcial: limite de registros atingido; solicite exportação para análise completa." :
+      "Indicadores atualizados. "+c.perdidos+" leads perdidos no período.";
+  } catch(e) { $("insights-notice").textContent="Não foi possível carregar os indicadores: "+e.message; }
+}
+$("insight-days").onchange=refreshInsights;
 function render() {
   const q = $("query").value.toLowerCase(), st = $("filter").value;
   const shown = data.filter(d => (!st || d.status===st) &&
@@ -162,6 +249,9 @@ function openLead(id) {
   $("detail-status").value=selected.status;
   $("detail-date").value=selected.appointmentDate || "";
   $("detail-revenue").value=money(selected.revenueCents);
+  $("detail-estimate").value=money(selected.estimatedRevenueCents);
+  $("detail-loss").value=selected.lostReason || "";
+  $("detail-test").checked=selected.isTest===true;
   $("detail-notes").value=selected.notes || "";
   const campaign=selected.campaign||{};
   $("detail-campaign").textContent=Object.entries(campaign).filter(([,v])=>v).map(([k,v])=>k+": "+v).join(" | ") || "Não identificada";
@@ -202,7 +292,10 @@ $("manual-form").onsubmit=async event=>{
     await request("/api/crm/leads",{method:"POST",body:JSON.stringify({
       name:$("manual-name").value.trim(), phone:$("manual-phone").value.trim(),
       service:$("manual-service").value, source:$("manual-source").value,
-      status, appointmentDate, revenueCents, notes:$("manual-notes").value
+      status, appointmentDate, revenueCents,
+      estimatedRevenueCents:moneyToCents($("manual-estimate").value),
+      isTest:$("manual-test").checked,
+      notes:$("manual-notes").value
     })});
     $("manual-close").click();
     await load(true);
@@ -216,16 +309,17 @@ $("close").onclick=()=>{$("drawer").classList.add("hidden");selected=null};
 $("drawer").addEventListener("click",e=>{if(e.target===$("drawer"))$("close").click()});
 $("save").onclick=async()=>{
   if(!selected)return;
-  const raw=$("detail-revenue").value.trim();
-  const parsed=raw ? Number(raw.replace(/\./g,"").replace(",", ".")) : null;
-  if(raw && (!Number.isFinite(parsed)||parsed<0)){$("detail-error").textContent="Valor inválido";return}
-  const revenueCents=parsed===null?null:Math.round(parsed*100);
   $("save").disabled=true;
   try {
+    const revenueCents = moneyToCents($("detail-revenue").value);
+    const estimatedRevenueCents = moneyToCents($("detail-estimate").value);
     await request("/api/crm/leads", {method:"PATCH",body:JSON.stringify({
       id:selected.id,status:$("detail-status").value,
       appointmentDate:$("detail-date").value||null,
-      revenueCents,notes:$("detail-notes").value
+      revenueCents,estimatedRevenueCents,
+      lostReason:$("detail-loss").value || null,
+      isTest:$("detail-test").checked,
+      notes:$("detail-notes").value
     })});
     $("close").click(); await load(true);
   } catch(e){$("detail-error").textContent=e.message}
