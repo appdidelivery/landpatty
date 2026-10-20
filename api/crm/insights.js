@@ -17,7 +17,8 @@ function groupLabel(lead) {
   if (source.startsWith("cadastro_manual_")) {
     const name=source.replace("cadastro_manual_", "");
     const labels={whatsapp:"WhatsApp (informado)",instagram:"Instagram (informado)",
-      indicacao:"Indicação (informada)",telefone:"Telefone (informado)",outro:"Outro (informado)"};
+      indicacao:"Indicação (informada)",telefone:"Telefone (informado)",outro:"Outro (informado)",
+      google_ads:"Google Ads (informado pela equipe)",meta_ads:"Meta Ads (informado pela equipe)",site:"Site (informado pela equipe)"};
     return labels[name] || "Cadastro manual";
   }
   if (lead.attribution?.lastChannel) return lead.attribution.lastChannel;
