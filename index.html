@@ -1079,11 +1079,12 @@
         }
 
         // Mantém evento e parâmetros da tag WhatsApp atual, sem quebrar conversões existentes.
-        function registrarCliqueWhatsApp(area, servico, botao, referencia) {
+        function registrarCliqueWhatsApp(area, servico, botao, referencia, profissional) {
             pattyEvento('whatsapp_click', {
                 whatsapp_area: String(area || 'outros').slice(0, 60),
                 whatsapp_servico: String(servico || 'atendimento_geral').slice(0, 100),
                 whatsapp_botao: String(botao || 'link').slice(0, 60),
+                whatsapp_profissional: String(profissional || '').slice(0, 90),
                 lead_reference: referencia || pattyReferencia()
             });
         }
@@ -1100,7 +1101,7 @@
             [/sobrancelhas|micro/i, 'Sobrancelhas e Micropigmentação'],
             [/cílios|cilios|lash/i, 'Cílios'],
             [/estética|estetica/i, 'Estética'],
-            [/maquiagem/i, 'Maquiagem'],
+            [/maquiagem|maquiadora|make/i, 'Maquiagem'],
             [/depilação|depilacao/i, 'Depilação'],
             [/massoterapia|terapias/i, 'Massoterapia e Terapias']
         ];
@@ -1125,14 +1126,14 @@
             capturaModal.hidden = false;
             document.getElementById('patty-capture-name').focus();
         }
-        function abrirWhatsAppCaptura({url, ref, serviceName, area, botao}, janela, nome, telefone) {
+        function abrirWhatsAppCaptura({url, ref, serviceName, area, botao, profissional}, janela, nome, telefone) {
             const destino = new URL(url);
             if (nome) {
                 const original = destino.searchParams.get('text') || '';
                 destino.searchParams.set('text', original + '\nMeu nome: ' + nome +
                     '\nWhatsApp para retorno: ' + telefone);
             }
-            registrarCliqueWhatsApp(area, serviceName, botao, ref);
+            registrarCliqueWhatsApp(area, serviceName, botao, ref, profissional);
             if (janela && !janela.closed) janela.location.href = destino.toString();
             else window.location.assign(destino.toString());
         }
@@ -1238,7 +1239,7 @@
                         serviceHint, profissional, ref, area, botao,
                         reelId: area === 'destaques' ? (window.pattyUltimoReelId || '') : ''});
                 } else {
-                    registrarCliqueWhatsApp(area, servico, botao, ref);
+                    registrarCliqueWhatsApp(area, servico, botao, ref, profissional);
                 }
             } else if (['instagram.com','www.instagram.com','facebook.com','www.facebook.com',
                          'tiktok.com','www.tiktok.com'].includes(url.hostname)) {
