@@ -3,7 +3,7 @@ import { db, firebaseAdmin, requireStaff, send } from "../../lib/firebase.js";
 
 const statuses = new Set(["novo", "em_contato", "agendado", "atendido", "perdido"]);
 const getText = (v, limit) => typeof v === "string" ? v.trim().slice(0, limit) : "";
-const manualSources = new Set(["whatsapp", "instagram", "indicacao", "telefone", "outro"]);
+const manualSources = new Set(["whatsapp", "instagram", "indicacao", "telefone", "outro", "google_ads", "meta_ads", "site"]);
 const services = new Set([
   "A definir", "Cabelos e Cachos", "Nail Design",
   "Sobrancelhas e Micropigmentação", "Estética", "Cílios",
