@@ -22,7 +22,8 @@ const encode = doc => {
     status: d.status, revenueCents: d.revenueCents,
     estimatedRevenueCents: d.estimatedRevenueCents ?? null,
     lostReason: d.lostReason || null, isTest: d.isTest === true,
-    appointmentDate: d.appointmentDate || null, notes: d.notes || "",
+    appointmentDate: d.appointmentDate || null,
+    followUpDate: d.followUpDate || null, notes: d.notes || "",
     createdAt: toIso(d.createdAt), updatedAt: toIso(d.updatedAt) };
 };
 
@@ -41,12 +42,13 @@ export default async function handler(req, res) {
       const status = getText(body.status, 20) || "novo";
       const notes = getText(body.notes, 600);
       const date = body.appointmentDate || null;
+      const followUp = body.followUpDate || null;
       const revenue = body.revenueCents ?? null;
       const expected = body.estimatedRevenueCents ?? null;
       const isTest = body.isTest === true;
       if (name.length < 2 || phone.length < 10 || phone.length > 13 ||
           !services.has(service) || !manualSources.has(source) ||
-          !statuses.has(status) || (date && !validDate(date)) ||
+          !statuses.has(status) || (date && !validDate(date)) || (followUp && !validDate(followUp)) ||
           (revenue !== null && (!Number.isSafeInteger(revenue) || revenue < 0 || revenue > 100000000)) ||
           (expected !== null && (!Number.isSafeInteger(expected) || expected < 0 || expected > 100000000))) {
         return send(res, 400, { error: "Revise nome, telefone, serviço, origem e dados do atendimento" });
@@ -69,7 +71,8 @@ export default async function handler(req, res) {
       const now = firebaseAdmin().firestore.FieldValue.serverTimestamp();
       await coll.doc(reference).create({
         reference, name, phone, service, source: "cadastro_manual_" + source,
-        campaign: {}, status, notes, appointmentDate: date, revenueCents: revenue,
+        campaign: {}, status, notes, appointmentDate: date,
+        followUpDate: followUp, revenueCents: revenue,
         estimatedRevenueCents: expected, isTest, lostReason: null,
         ...(status === "agendado" ? {bookedAt: now} : {}),
         ...(status === "atendido" ? {completedAt: now} : {}),
@@ -122,6 +125,11 @@ export default async function handler(req, res) {
           (!Number.isSafeInteger(body.revenueCents) || body.revenueCents < 0 || body.revenueCents > 100000000))
         return send(res, 400, { error: "Valor inválido" });
       update.revenueCents = body.revenueCents;
+    }
+    if ("followUpDate" in body) {
+      if (body.followUpDate !== null && !validDate(body.followUpDate))
+        return send(res, 400, {error: "Data de retorno inválida"});
+      update.followUpDate = body.followUpDate;
     }
     if ("appointmentDate" in body) {
       if (body.appointmentDate !== null && !validDate(body.appointmentDate))
