@@ -43,6 +43,13 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <form id="login-form"><label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required>
 <label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required>
 <p id="login-error" class="error" role="alert"></p><button class="primary" type="submit">Entrar no CRM</button></form></section>
+<section id="verify-panel" class="panel login hidden">
+<h1>Confirme seu e-mail</h1>
+<p class="muted">Para proteger os dados das clientes, confirme o endereço de e-mail antes de acessar o painel. Verifique também a caixa de spam.</p>
+<p><strong id="verify-email"></strong></p>
+<div class="actions"><button id="verify-send" class="primary" type="button">Enviar e-mail de confirmação</button><button id="verify-retry" class="secondary" type="button">Já confirmei — atualizar acesso</button></div>
+<p id="verify-info" class="muted" role="status"></p>
+</section>
 <section id="app" class="hidden">
 <div class="toolbar"><div><h1 style="margin:0">Contatos e agendamentos</h1><p class="muted" style="margin:0">Leads enviados pelo formulário do site</p></div><button id="reload" class="secondary">Atualizar</button></div>
 <div class="cards">
@@ -71,7 +78,7 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 </section></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, reload } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 const $ = id => document.getElementById(id);
 let auth, data = [], nextCursor = null, selected = null, loading = false;
 const statuses = {novo:"Novo",em_contato:"Em conversa",agendado:"Agendado",atendido:"Atendido",perdido:"Perdido"};
@@ -154,6 +161,28 @@ $("save").onclick=async()=>{
 $("query").oninput=render;$("filter").onchange=render;
 $("reload").onclick=()=>load(true);$("more").onclick=()=>load(false);
 $("logout").onclick=()=>signOut(auth);
+$("verify-send").onclick=async()=>{
+  $("verify-send").disabled=true;
+  try{
+    await sendEmailVerification(auth.currentUser);
+    $("verify-info").textContent="Enviamos um link de confirmação. Abra seu e-mail, confirme e depois clique em 'Já confirmei'.";
+  }catch(_){
+    $("verify-info").textContent="Não foi possível enviar o link. Aguarde alguns minutos e tente novamente.";
+  }finally{$("verify-send").disabled=false}
+};
+$("verify-retry").onclick=async()=>{
+  $("verify-retry").disabled=true;
+  try {
+    await reload(auth.currentUser);
+    if(auth.currentUser.emailVerified) {
+      await auth.currentUser.getIdToken(true);
+      $("verify-panel").classList.add("hidden");
+      $("app").classList.remove("hidden");
+      await load(true);
+    } else $("verify-info").textContent="O e-mail ainda não está confirmado. Verifique sua caixa de entrada.";
+  }catch(_){$("verify-info").textContent="Não foi possível conferir agora. Tente novamente."}
+  finally{$("verify-retry").disabled=false}
+};
 $("login-form").onsubmit=async e=>{
   e.preventDefault(); $("login-error").textContent="";
   try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value)}
@@ -167,10 +196,13 @@ $("login-form").onsubmit=async e=>{
     if(!config.firebase?.apiKey||!config.firebase?.projectId)throw Error("Aguardando configuração do Firebase");
     auth=getAuth(initializeApp(config.firebase));
     onAuthStateChanged(auth,async user=>{
+      const needsVerification = !!user && !user.emailVerified;
       $("login-panel").classList.toggle("hidden",!!user);
-      $("app").classList.toggle("hidden",!user);
+      $("verify-panel").classList.toggle("hidden",!needsVerification);
+      $("app").classList.toggle("hidden",!user || needsVerification);
       $("logout").classList.toggle("hidden",!user);
-      if(user)await load(true);
+      if(needsVerification)$("verify-email").textContent=user.email||"";
+      if(user && !needsVerification)await load(true);
     });
   }catch(e){$("login-error").textContent=e.message}
 })();

@@ -9,8 +9,6 @@ export default function handler(req, res) {
       projectId: process.env.FIREBASE_PROJECT_ID || "",
       appId: process.env.FIREBASE_WEB_APP_ID || ""
     },
-    turnstileSiteKey: process.env.TURNSTILE_SITE_KEY || "",
-    captureEnabled: Boolean(process.env.FIREBASE_SERVICE_ACCOUNT_JSON &&
-      process.env.TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY)
+    captureEnabled: Boolean(process.env.FIREBASE_SERVICE_ACCOUNT_JSON)
   });
 }

@@ -1,11 +1,11 @@
 # Patty CRM — MVP (branch de teste)
 
-Esta implementação não altera o WhatsApp Business no celular e não está ativa no site de produção enquanto não for feita a publicação.
+Esta atualização remove a exigência de conta Cloudflare. A validação de envios funciona no backend; o WhatsApp Business permanece no celular.
 
 ## O que o MVP faz
 
 - Formulário: nome, WhatsApp, serviço, referência PTY e origem da campanha.
-- Captura no banco Firestore (servidor), com proteção Turnstile e formulário honeypot.
+- Captura no Firestore, com honeypot, validação de origem, dados e limites de envios transacionais por telefone/IP (identificadores em hash, não em claro).
 - A solicitação é registrada antes do redirecionamento ao WhatsApp.
 - CRM mobile em /crm.html com login Firebase, allowlist de funcionários no backend e alterações de status, data, observações e receita.
 - Privacidade: dados pessoais não são enviados ao GA4.
@@ -19,8 +19,6 @@ Esta implementação não altera o WhatsApp Business no celular e não está ati
 - FIREBASE_WEB_APP_ID: app ID do Firebase Web (público)
 - CRM_ALLOWED_EMAILS: emails autorizados, separados por vírgula
 - CRM_ALLOWED_ORIGINS: origens HTTPS exatas do site e do preview, separadas por vírgula
-- TURNSTILE_SITE_KEY: site key do Cloudflare Turnstile (pública)
-- TURNSTILE_SECRET_KEY: segredo de verificação do Cloudflare Turnstile (secreto)
 
 ## Passos antes de publicar
 
@@ -28,7 +26,7 @@ Esta implementação não altera o WhatsApp Business no celular e não está ati
 2. Criar Firebase separado para Patty; habilitar Firestore e Authentication com Email/Senha.
 3. Criar usuários somente pela administração do Firebase, marcar e-mails como verificados e preencher CRM_ALLOWED_EMAILS.
 4. No Firestore, negar acesso direto dos clientes a patty_leads (regra allow read, write: if false). O Firebase Admin SDK do servidor tem acesso pelo service account.
-5. Criar Turnstile, incluir os domínios corretos e configurar as chaves.
+5. Nenhuma conta Cloudflare é necessária. A coleção interna patty_capture_rate_limits controla abuso. Recomenda-se configurar TTL para o campo expiresAt dessa coleção no console Firestore, para limpeza automática.
 6. Configurar secrets apenas nas variáveis de ambiente da hospedagem; nunca colocar credenciais no GitHub, Analytics ou código web.
 7. Validar texto de privacidade com a proprietária antes de publicar.
 8. Gerar deploy preview, testar criação/duplicidade, acesso negado, status, receita, fallback de WhatsApp e integração GA4.
@@ -47,6 +45,10 @@ Esta implementação não altera o WhatsApp Business no celular e não está ati
 
 - Capturar formulário em rede real com UTM e GCLID fictícios, sem enviar dados pessoais para GA4.
 - Abrir WhatsApp Business com a referência PTY na mensagem, sem alterar número nem configuração do aplicativo.
-- Testar token Turnstile inválido, dados inválidos, origem não autorizada e acesso ao CRM sem token (401), token fora da allowlist (403).
+- Testar limite de envios (HTTP 429), honeypot, dados inválidos, origem não autorizada e acesso ao CRM sem token (401), token fora da allowlist (403).
 - Testar conta autorizada, atualizar status e receita e reler dados.
 - Conferir rastreamento já existente via GTM/GA4, sem duplicação de eventos e sem perda de mobile PageSpeed.
+
+## Observação sobre proteção anti-spam
+
+Esta solução evita novos provedores, mas NÃO possui desafio anti-bot interativo. Use monitoramento de custos e tráfego, e considere ativar proteção adicional caso seja detectado abuso. Limites atuais: 3 envios em 15 minutos e 12/dia por telefone, além de 8 em 15 minutos e 40/dia por IP Vercel. O cliente sempre pode continuar pelo WhatsApp. Os documentos de limite incluem expiresAt; configurar TTL da coleção para limpeza automática é recomendado.
