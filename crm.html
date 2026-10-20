@@ -51,7 +51,7 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <p id="verify-info" class="muted" role="status"></p>
 </section>
 <section id="app" class="hidden">
-<div class="toolbar"><div><h1 style="margin:0">Contatos e agendamentos</h1><p class="muted" style="margin:0">Leads enviados pelo formulário do site</p></div><button id="reload" class="secondary">Atualizar</button></div>
+<div class="toolbar"><div><h1 style="margin:0">Contatos e agendamentos</h1><p class="muted" style="margin:0">Leads do site e contatos cadastrados pela equipe</p></div><div class="actions" style="margin:0"><button id="manual-add" class="primary">+ Novo lead</button><button id="reload" class="secondary">Atualizar</button></div></div>
 <div class="cards">
 <div class="metric"><span>Registros carregados</span><strong id="count">0</strong></div>
 <div class="metric"><span>Novos</span><strong id="new">0</strong></div>
@@ -65,6 +65,37 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <p class="footnote">Os indicadores acima resumem apenas os registros carregados. Dados pessoais não são enviados ao GA4.</p>
 </section>
 </main>
+<div id="manual-drawer" class="drawer hidden" role="dialog" aria-modal="true" aria-labelledby="manual-title">
+<section class="panel">
+<div class="drawer-top"><h2 id="manual-title">Novo lead</h2><button id="manual-close" class="secondary" type="button">Fechar</button></div>
+<p class="muted">Cadastre contatos recebidos pelo WhatsApp, Instagram, telefone ou indicação. Não confundir com cliques anônimos no site.</p>
+<form id="manual-form" class="fields">
+<div class="full"><label for="manual-name">Nome *</label><input id="manual-name" autocomplete="name" maxlength="120" required minlength="2"></div>
+<div class="full"><label for="manual-phone">WhatsApp ou telefone *</label><input id="manual-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="DDD + número" required></div>
+<div><label for="manual-source">Origem *</label><select id="manual-source" required>
+<option value="whatsapp">WhatsApp</option><option value="instagram">Instagram</option>
+<option value="indicacao">Indicação</option><option value="telefone">Telefone</option>
+<option value="outro">Outra origem</option></select></div>
+<div><label for="manual-service">Serviço</label><select id="manual-service">
+<option value="A definir">A definir</option>
+<option value="Cabelos e Cachos">Cabelos e Cachos</option>
+<option value="Nail Design">Manicure / Nail Design</option>
+<option value="Sobrancelhas e Micropigmentação">Sobrancelhas</option>
+<option value="Estética">Estética</option><option value="Cílios">Cílios</option>
+<option value="Maquiagem">Maquiagem</option><option value="Depilação">Depilação</option>
+<option value="Massoterapia e Terapias">Massoterapia</option>
+</select></div>
+<div class="full"><label for="manual-status">Etapa do atendimento</label><select id="manual-status">
+<option value="novo">Novo lead</option><option value="em_contato">Em conversa</option>
+<option value="agendado">Agendado</option><option value="atendido">Atendido</option>
+<option value="perdido">Perdido</option></select></div>
+<div><label for="manual-date">Data agendada</label><input id="manual-date" type="date"></div>
+<div><label for="manual-revenue">Valor recebido (R$)</label><input id="manual-revenue" inputmode="decimal" placeholder="Ex: 120,00"></div>
+<div class="full"><label for="manual-notes">Observações</label><textarea id="manual-notes" rows="3" maxlength="600" placeholder="O que o cliente perguntou? O que falta para agendar?"></textarea></div>
+<div class="full"><p id="manual-error" class="error" role="alert"></p>
+<button id="manual-save" class="primary" type="submit">Salvar contato</button></div>
+</form>
+</section></div>
 <div id="drawer" class="drawer hidden"><section class="panel">
 <div class="drawer-top"><div><h2 id="detail-name">Contato</h2><small id="detail-reference"></small></div><button class="secondary" id="close">Fechar</button></div>
 <p id="detail-service"></p><p id="detail-origin" class="muted"></p><div class="fields">
@@ -106,7 +137,7 @@ async function load(reset) {
     data.push(...response.leads);
     nextCursor = response.nextCursor;
     $("more").classList.toggle("hidden", !nextCursor);
-    $("notice").textContent = data.length ? "Contatos recebidos pelo formulário. Clique para atualizar o atendimento." : "Nenhum contato cadastrado ainda.";
+    $("notice").textContent = data.length ? "Contatos recebidos. Clique em Abrir para atualizar o atendimento." : "Nenhum contato cadastrado ainda.";
     render();
   } catch(e) {$("notice").textContent = e.message;}
   finally {loading=false}
@@ -139,6 +170,48 @@ function openLead(id) {
   $("detail-error").textContent="";
   $("drawer").classList.remove("hidden");
 }
+// Cadastro manual: somente usuários autenticados e autorizados no backend.
+$("manual-add").onclick=()=>{
+  $("manual-error").textContent="";
+  $("manual-form").reset();
+  $("manual-drawer").classList.remove("hidden");
+  $("manual-name").focus();
+};
+$("manual-close").onclick=()=>$("manual-drawer").classList.add("hidden");
+$("manual-drawer").addEventListener("click", e=>{if(e.target===$("manual-drawer"))$("manual-close").click();});
+const moneyToCents = value => {
+  const s = value.trim();
+  if (!s) return null;
+  const normalized = s.replace(/\s/g,"").replace(/\./g,"").replace(",",".");
+  if (!/^\d+(\.\d{1,2})?$/.test(normalized)) throw Error("Valor inválido. Exemplo: 120,00.");
+  const cents = Math.round(Number(normalized)*100);
+  if (!Number.isSafeInteger(cents)||cents>100000000) throw Error("Valor fora do limite permitido.");
+  return cents;
+};
+$("manual-form").onsubmit=async event=>{
+  event.preventDefault();
+  if (!$("manual-form").reportValidity()) return;
+  $("manual-error").textContent="";
+  $("manual-save").disabled=true;
+  try {
+    const status = $("manual-status").value;
+    const appointmentDate = $("manual-date").value || null;
+    const revenueCents = moneyToCents($("manual-revenue").value);
+    if(status==="agendado" && !appointmentDate)throw Error("Informe a data para o agendamento.");
+    if(status==="atendido" && revenueCents===null)throw Error("Informe o valor recebido, mesmo que seja zero.");
+    await request("/api/crm/leads",{method:"POST",body:JSON.stringify({
+      name:$("manual-name").value.trim(), phone:$("manual-phone").value.trim(),
+      service:$("manual-service").value, source:$("manual-source").value,
+      status, appointmentDate, revenueCents, notes:$("manual-notes").value
+    })});
+    $("manual-close").click();
+    await load(true);
+  }catch(e){$("manual-error").textContent=e.message}
+  finally{$("manual-save").disabled=false}
+};
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&!$("manual-drawer").classList.contains("hidden"))$("manual-close").click();
+});
 $("close").onclick=()=>{$("drawer").classList.add("hidden");selected=null};
 $("drawer").addEventListener("click",e=>{if(e.target===$("drawer"))$("close").click()});
 $("save").onclick=async()=>{
