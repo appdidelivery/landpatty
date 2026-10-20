@@ -85,7 +85,7 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
  <div><h3>Por origem</h3><div id="insights-channels" class="insights-list"></div></div>
 </div>
 <div id="insights-loss"></div>
-<p class="smallnote">Conversão = leads captados no período cujo estágio atual é Agendado ou Atendido. Receita realizada = valores informados de atendimentos desses leads. Receita futura = soma dos valores previstos em agendamentos confirmados para os próximos 30 dias; não inclui agendamentos sem preço e não é garantia de recebimento. Registros marcados como teste não entram nos indicadores. Google Ads só é identificado quando a origem contém parâmetros de campanha compatíveis; cliques no GA4 não são leads.</p>
+<p class="smallnote">Conversão = leads captados no período cujo estágio atual é Agendado ou Atendido. Receita realizada = valores informados em atendimentos marcados como concluídos no período, independentemente de quando o lead foi captado. Receita futura = soma dos valores previstos em agendamentos confirmados para os próximos 30 dias; não inclui agendamentos sem preço e não é garantia de recebimento. Registros marcados como teste não entram nos indicadores. Google Ads só é identificado quando a origem contém parâmetros de campanha compatíveis; cliques no GA4 não são leads.</p>
 </section>
 <div class="filters"><input id="query" placeholder="Buscar nome, telefone ou serviço" aria-label="Buscar contatos">
 <select id="filter" aria-label="Filtrar por status"><option value="">Todos os status</option><option value="novo">Novos</option><option value="em_contato">Em contato</option><option value="agendado">Agendados</option><option value="atendido">Atendidos</option><option value="perdido">Perdidos</option><option value="followup_due">Retornos para hoje/atrasados</option></select></div>
@@ -206,17 +206,19 @@ async function refreshInsights() {
   try {
     const days=$("insight-days").value==="30"?30:7;
     const result=await request("/api/crm/insights?days="+days);
-    const c=result.cohort, a=result.agendaNext30Days;
+    const c=result.cohort, a=result.agendaNext30Days, p=result.periodActivity;
     $("insights-cards").innerHTML=[
       insightMetric("Leads identificados",c.leads,days+" dias, excluindo testes"),
       insightMetric("Agendados e atendidos",c.agendados+c.atendidos,
         c.agendamentoRatePercent.toLocaleString("pt-BR")+"% dos leads do período"),
-      insightMetric("Atendimentos concluídos",c.atendidos,
-        c.attendedWithoutValue+" sem valor recebido informado"),
-      insightMetric("Receita realizada",currency(c.realizedRevenueCents),
-        "Atendimentos dos leads captados no período"),
-      insightMetric("Ticket médio realizado",currency(c.averageTicketCents),
-        c.attendedWithValue+" atendimentos com valor informado"),
+      insightMetric("Agendamentos registrados",p.bookingsRecorded,
+        "Confirmações registradas nos últimos "+days+" dias"),
+      insightMetric("Atendimentos concluídos",p.attended,
+        p.withoutValue+" sem valor recebido informado"),
+      insightMetric("Receita registrada no período",currency(p.realizedRevenueCents),
+        "Atendimentos marcados como concluídos nos últimos "+days+" dias"),
+      insightMetric("Ticket médio realizado",currency(p.averageTicketCents),
+        p.withValue+" atendimentos com valor informado"),
       insightMetric("Próximos 30 dias: valor previsto",currency(a.scheduledValueCents),
         a.appointments+" agendamentos; "+a.withoutEstimate+" sem preço estimado"),
       insightMetric("Retornos pendentes",result.dueFollowUps || 0,
