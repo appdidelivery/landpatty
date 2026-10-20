@@ -63,7 +63,7 @@ export default async function handler(req, res) {
       const duplicate = recent.docs.find(d => {
         const lead = d.data();
         const ms = lead.createdAt?.toMillis?.() || 0;
-        return lead.service === service && ms >= cutoff && lead.status !== "atendido" && lead.status !== "perdido";
+        return lead.isTest !== true && lead.service === service && ms >= cutoff && lead.status !== "atendido" && lead.status !== "perdido";
       });
       if (duplicate)
         return send(res, 409, { error: "Este telefone e serviço já têm um lead recente no CRM. Abra o cadastro existente.", reference: duplicate.id });
