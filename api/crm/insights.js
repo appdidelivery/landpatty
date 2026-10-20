@@ -47,6 +47,20 @@ export default async function handler(req, res) {
     const recent = await coll.where("createdAt", ">=", firebaseAdmin().firestore.Timestamp.fromDate(since))
       .orderBy("createdAt", "desc").limit(MAX_REPORT_RECORDS + 1).get();
     const partialCohort = recent.size > MAX_REPORT_RECORDS;
+    // Fluxo realizado DURANTE a janela: usa a data registrada da mudança de estágio,
+    // não a data em que o lead entrou pelo site.
+    const completedSnapshot = await coll
+      .where("completedAt", ">=", firebaseAdmin().firestore.Timestamp.fromDate(since))
+      .limit(MAX_REPORT_RECORDS + 1).get();
+    const partialCompleted = completedSnapshot.size > MAX_REPORT_RECORDS;
+    const completed = completedSnapshot.docs.slice(0,MAX_REPORT_RECORDS).map(d=>d.data())
+      .filter(d=>d.isTest !== true && d.status==="atendido");
+    const bookedSnapshot = await coll
+      .where("bookedAt", ">=", firebaseAdmin().firestore.Timestamp.fromDate(since))
+      .limit(MAX_REPORT_RECORDS + 1).get();
+    const partialBookings = bookedSnapshot.size > MAX_REPORT_RECORDS;
+    const bookedDuringPeriod = bookedSnapshot.docs.slice(0,MAX_REPORT_RECORDS)
+      .map(d=>d.data()).filter(d=>d.isTest !== true);
     const docs = recent.docs.slice(0,MAX_REPORT_RECORDS).map(d => d.data())
       .filter(d => d.isTest !== true);
 
@@ -67,12 +81,14 @@ export default async function handler(req, res) {
       .map(d => d.data()).filter(d => d.isTest !== true && d.status === "agendado");
 
     const stats = {days, since:since.toISOString(), today, through:futureLimit,
-      partial:partialCohort || partialAgenda || partialFollowUps,
+      partial:partialCohort || partialAgenda || partialFollowUps || partialCompleted || partialBookings,
       cohort:{leads:docs.length,novos:0,emContato:0,agendados:0,atendidos:0,perdidos:0,
         agendamentoRatePercent:0, realizedRevenueCents:0, attendedWithValue:0,
         attendedWithoutValue:0, averageTicketCents:null, withGoogleAdsAttribution:0},
       agendaNext30Days:{appointments:upcoming.length,withEstimate:0,withoutEstimate:0,
         scheduledValueCents:0},
+      periodActivity:{bookingsRecorded:bookedDuringPeriod.length,attended:completed.length,
+        realizedRevenueCents:0,withValue:0,withoutValue:0,averageTicketCents:null},
       dueFollowUps:followUpsDue.length,
       byService:[],byChannel:[],lossReasons:[]
     };
@@ -118,6 +134,16 @@ export default async function handler(req, res) {
     stats.byChannel = [...channels.values()].sort((a,b)=>b.leads-a.leads).slice(0,15);
     stats.lossReasons = [...losses.entries()].map(([name,count])=>({name,count}))
       .sort((a,b)=>b.count-a.count);
+    for(const d of completed) {
+      const received = money(d,"revenueCents");
+      if(received === null) stats.periodActivity.withoutValue++;
+      else {
+        stats.periodActivity.withValue++;
+        stats.periodActivity.realizedRevenueCents += received;
+      }
+    }
+    stats.periodActivity.averageTicketCents = stats.periodActivity.withValue ?
+      Math.round(stats.periodActivity.realizedRevenueCents / stats.periodActivity.withValue) : null;
     for(const d of upcoming){
       const estimate = money(d,"estimatedRevenueCents");
       if(estimate===null)stats.agendaNext30Days.withoutEstimate++;
