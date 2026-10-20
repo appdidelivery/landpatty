@@ -70,9 +70,10 @@ Esta solução evita novos provedores, mas NÃO possui desafio anti-bot interati
 ## Painel comercial: conversão e previsibilidade
 
 Após merge e deploy, o CRM apresenta:
-- Resultados por coorte de leads CRIADOS nos últimos 7 ou 30 dias: quantidade, status atual, porcentagem que chegou a agendado/atendido, receita efetivamente registrada, ticket médio e divisão por serviço/origem;
+- Resultados por coorte de leads CRIADOS nos últimos 7 ou 30 dias: quantidade, status atual, porcentagem que chegou a agendado/atendido e divisão por serviço/origem;
+- Atividade comercial do período selecionado (independente de quando o lead foi criado): quantidade de agendamentos registrados, atendimentos concluídos, valores efetivamente recebidos e ticket médio informado;
 - Agenda futura de 30 dias: SOMA do valor previsto INFORMADO em cada agendamento confirmado, com contagem dos agendamentos ainda sem valor. **Não se trata de faturamento garantido**;
-- Retornos vencidos de contatos ainda abertos. Defina a data de retorno no cadastro manual ou no detalhe;
+- Retornos vencidos de contatos ainda abertos. Defina a data de retorno no cadastro manual ou no detalhe, e use o filtro de retornos na lista de leads;
 - Motivos dos leads perdidos, para orientar ações comerciais;
 - Marcador "registro de teste": excluir testes dos relatórios (inclusive o teste inicial feito antes desta atualização).
 
@@ -84,7 +85,7 @@ Após merge e deploy, o CRM apresenta:
 5. Se não fechar, marcar "Perdido" e informar motivo. Registros fictícios: marcar "registro de teste".
 
 ### Atenções métricas
-- "Receita realizada" nos relatórios é relativa aos leads criados no período, não equivale ao movimento financeiro/caixa do período. Evitar usar como conciliação fiscal ou relatório contábil.
+- "Receita registrada no período" usa o instante em que um lead foi marcado como Atendido no CRM. Se registros antigos forem lançados retroativamente, essa data NÃO equivale necessariamente à data real do serviço. Não equivale à movimentação financeira/caixa, e não deve ser usada como conciliação fiscal. Para caixa exato precisaremos de data do serviço/recebimento confirmada.
 - Indicadores dos cartões superiores antigos contam registros CARREGADOS no navegador; use a seção "Resultados comerciais" para indicadores agregados de coorte e agenda, que não incluem testes.
 - A origem Google Ads só é reconhecida se o cadastro tiver os respectivos parâmetros identificáveis; não converter cliques GA4 em clientes.
 - Relatórios têm limite de 1.000 registros por consulta e exibem aviso quando são parciais. Para redes maiores será necessário implementar agregação no servidor.
