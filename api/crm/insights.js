@@ -14,19 +14,34 @@ const addCalendarDays = (date, days) =>
 
 function groupLabel(lead) {
   const source = lead.source || "";
-  const utm = lead.campaign || {};
   if (source.startsWith("cadastro_manual_")) {
-    const name = source.replace("cadastro_manual_", "");
-    const labels = {whatsapp:"WhatsApp (manual)",instagram:"Instagram (manual)",
-      indicacao:"Indicação (manual)",telefone:"Telefone (manual)",outro:"Outro (manual)"};
+    const name=source.replace("cadastro_manual_", "");
+    const labels={whatsapp:"WhatsApp (informado)",instagram:"Instagram (informado)",
+      indicacao:"Indicação (informada)",telefone:"Telefone (informado)",outro:"Outro (informado)"};
     return labels[name] || "Cadastro manual";
   }
-  if (utm.gclid || utm.gbraid || utm.wbraid ||
-      ((utm.utm_source || "").toLowerCase() === "google" &&
-        /(cpc|paid|ppc)/i.test(utm.utm_medium || "")))
-    return "Google Ads (identificado)";
-  if (utm.utm_source) return "Campanha: " + String(utm.utm_source).slice(0, 55);
-  return source === "botao_servico" ? "Site: botão de serviço" : "Site: formulário";
+  if (lead.attribution?.lastChannel) return lead.attribution.lastChannel;
+  const utm=lead.campaign||{};
+  if (utm.gclid || utm.gbraid || utm.wbraid) return "Google Ads (ID de clique)";
+  if (utm.fbclid) return "Meta/Facebook (ID de clique)";
+  if (utm.msclkid) return "Microsoft Ads (ID de clique)";
+  if (utm.utm_source) return "Campanha UTM: "+String(utm.utm_source).slice(0,55);
+  return source==="botao_whatsapp"?"Site: outro botão WhatsApp":
+    source==="botao_servico"?"Site: botão de serviço":"Site: formulário";
+}
+function campaignLabel(lead) {
+  if ((lead.source||"").startsWith("cadastro_manual_")) return "Manual (sem campanha comprovada)";
+  const touch=lead.attribution?.lastTouch || lead.campaign || {};
+  const campaign=touch.utm_campaign || touch.utm_id || touch.campaign_id || touch.gad_campaignid;
+  return campaign ? String(campaign).slice(0,90) : "Campanha não identificada";
+}
+function ctaLabel(lead) {
+  const data=lead.cta||{};
+  if(data.professional) return "Equipe: "+String(data.professional).slice(0,80);
+  if(data.reelId) return "Vídeo (Reel): "+String(data.reelId).slice(0,35);
+  const labels={servicos:"Botão de serviço",hero:"Formulário principal",
+    equipe:"Equipe",flutuante:"WhatsApp flutuante",destaques:"Vídeos em destaque"};
+  return labels[data.area] || (lead.source||"").replace("cadastro_manual_","Manual: ") || "Não identificado";
 }
 function blankGroup(name) {
   return { name, leads:0, agendados:0, atendidos:0, perdidos:0, revenueCents:0,
@@ -90,11 +105,11 @@ export default async function handler(req, res) {
       periodActivity:{bookingsRecorded:bookedDuringPeriod.length,attended:completed.length,
         realizedRevenueCents:0,withValue:0,withoutValue:0,averageTicketCents:null},
       dueFollowUps:followUpsDue.length,
-      byService:[],byChannel:[],lossReasons:[]
+      byService:[],byChannel:[],byCampaign:[],byCTA:[],lossReasons:[]
     };
     const stages = {novo:"novos",em_contato:"emContato",agendado:"agendados",
       atendido:"atendidos",perdido:"perdidos"};
-    const services = new Map(), channels = new Map(), losses = new Map();
+    const services = new Map(), channels = new Map(), campaigns = new Map(), ctas = new Map(), losses = new Map();
     const labels = {preco:"Preço",horario:"Horário",sem_resposta:"Sem resposta",
       desistencia:"Desistência",outro:"Outro motivo",indefinido:"Não informado"};
     for(const d of docs){
@@ -102,11 +117,15 @@ export default async function handler(req, res) {
       if(stage) stats.cohort[stage]++;
       const service = d.service || "Não informado";
       const channel = groupLabel(d);
+      const campaign = campaignLabel(d);
+      const cta = ctaLabel(d);
       if(!services.has(service))services.set(service,blankGroup(service));
       if(!channels.has(channel))channels.set(channel,blankGroup(channel));
-      if(channel === "Google Ads (identificado)") stats.cohort.withGoogleAdsAttribution++;
+      if(!campaigns.has(campaign))campaigns.set(campaign,blankGroup(campaign));
+      if(!ctas.has(cta))ctas.set(cta,blankGroup(cta));
+      if(channel === "Google Ads (ID de clique)") stats.cohort.withGoogleAdsAttribution++;
       const earned = d.status === "atendido" ? money(d,"revenueCents") : null;
-      for(const group of [services.get(service),channels.get(channel)]){
+      for(const group of [services.get(service),channels.get(channel),campaigns.get(campaign),ctas.get(cta)]){
         group.leads++;
         if(d.status==="agendado"||d.status==="atendido")group.agendados++;
         if(d.status==="atendido")group.atendidos++;
@@ -132,6 +151,8 @@ export default async function handler(req, res) {
       Math.round(stats.cohort.realizedRevenueCents / stats.cohort.attendedWithValue) : null;
     stats.byService = [...services.values()].sort((a,b)=>b.leads-a.leads).slice(0,15);
     stats.byChannel = [...channels.values()].sort((a,b)=>b.leads-a.leads).slice(0,15);
+    stats.byCampaign = [...campaigns.values()].sort((a,b)=>b.leads-a.leads).slice(0,20);
+    stats.byCTA = [...ctas.values()].sort((a,b)=>b.leads-a.leads).slice(0,20);
     stats.lossReasons = [...losses.entries()].map(([name,count])=>({name,count}))
       .sort((a,b)=>b.count-a.count);
     for(const d of completed) {
