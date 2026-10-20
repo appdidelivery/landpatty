@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 
-for (const file of ["lib/firebase.js", "api/config.js", "api/leads.js", "api/crm/leads.js"]) {
+for (const file of ["lib/firebase.js", "api/config.js", "api/leads.js", "api/crm/leads.js", "api/crm/insights.js"]) {
   execFileSync(process.execPath, ["--check", file], { stdio: "inherit" });
 }
 const tmp = mkdtempSync(join(tmpdir(), "patty-crm-"));
@@ -20,6 +20,12 @@ try {
     });
     if (file === "index.html" && (!html.includes("privacy-ack") || !html.includes("/api/leads"))) {
       throw Error("Captação do formulário não presente");
+    }
+    if (file === "crm.html" &&
+        (!html.includes('manual-add') || !html.includes('/api/crm/insights') ||
+         !html.includes('detail-estimate') || !html.includes('detail-test') ||
+         !html.includes('manual-followup'))) {
+      throw Error("Painel comercial ou cadastro manual ausente em crm.html");
     }
   }
   console.log("Validação de sintaxe do MVP concluída");
