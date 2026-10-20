@@ -58,16 +58,22 @@ export default async function handler(req, res) {
       .where("appointmentDate", "<=", futureLimit)
       .limit(MAX_REPORT_RECORDS + 1).get();
     const partialAgenda = appointmentsSnapshot.size > MAX_REPORT_RECORDS;
+    const followUpsSnapshot = await coll.where("followUpDate", "<=", today)
+      .limit(MAX_REPORT_RECORDS + 1).get();
+    const partialFollowUps = followUpsSnapshot.size > MAX_REPORT_RECORDS;
+    const followUpsDue = followUpsSnapshot.docs.slice(0,MAX_REPORT_RECORDS).map(d => d.data())
+      .filter(d => d.isTest !== true && ["novo","em_contato"].includes(d.status));
     const upcoming = appointmentsSnapshot.docs.slice(0,MAX_REPORT_RECORDS)
       .map(d => d.data()).filter(d => d.isTest !== true && d.status === "agendado");
 
     const stats = {days, since:since.toISOString(), today, through:futureLimit,
-      partial:partialCohort || partialAgenda,
+      partial:partialCohort || partialAgenda || partialFollowUps,
       cohort:{leads:docs.length,novos:0,emContato:0,agendados:0,atendidos:0,perdidos:0,
         agendamentoRatePercent:0, realizedRevenueCents:0, attendedWithValue:0,
         attendedWithoutValue:0, averageTicketCents:null, withGoogleAdsAttribution:0},
       agendaNext30Days:{appointments:upcoming.length,withEstimate:0,withoutEstimate:0,
         scheduledValueCents:0},
+      dueFollowUps:followUpsDue.length,
       byService:[],byChannel:[],lossReasons:[]
     };
     const stages = {novo:"novos",em_contato:"emContato",agendado:"agendados",
