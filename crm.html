@@ -83,9 +83,11 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <div class="insights-tables">
  <div><h3>Por serviço</h3><div id="insights-services" class="insights-list"></div></div>
  <div><h3>Por origem</h3><div id="insights-channels" class="insights-list"></div></div>
+<div><h3>Por campanha (quando identificada)</h3><div id="insights-campaigns" class="insights-list"></div></div>
+<div><h3>Por botão/ação de contato</h3><div id="insights-ctas" class="insights-list"></div></div>
 </div>
 <div id="insights-loss"></div>
-<p class="smallnote">Conversão = leads captados no período cujo estágio atual é Agendado ou Atendido. Receita realizada = valores informados em atendimentos marcados como concluídos no período, independentemente de quando o lead foi captado. Receita futura = soma dos valores previstos em agendamentos confirmados para os próximos 30 dias; não inclui agendamentos sem preço e não é garantia de recebimento. Registros marcados como teste não entram nos indicadores. Google Ads só é identificado quando a origem contém parâmetros de campanha compatíveis; cliques no GA4 não são leads.</p>
+<p class="smallnote">Conversão = leads captados no período cujo estágio atual é Agendado ou Atendido. Receita realizada = valores informados em atendimentos marcados como concluídos no período, independentemente de quando o lead foi captado. Receita futura = soma dos valores previstos em agendamentos confirmados para os próximos 30 dias; não inclui agendamentos sem preço e não é garantia de recebimento. Registros marcados como teste não entram nos indicadores. Origem por UTM, ID de clique e referência é indicativa; campanhas não identificadas ficam agrupadas. Cliques no GA4 e vídeos reproduzidos não são leads.</p>
 </section>
 <div class="filters"><input id="query" placeholder="Buscar nome, telefone ou serviço" aria-label="Buscar contatos">
 <select id="filter" aria-label="Filtrar por status"><option value="">Todos os status</option><option value="novo">Novos</option><option value="em_contato">Em contato</option><option value="agendado">Agendados</option><option value="atendido">Atendidos</option><option value="perdido">Perdidos</option><option value="followup_due">Retornos para hoje/atrasados</option></select></div>
@@ -104,6 +106,9 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <div><label for="manual-source">Origem *</label><select id="manual-source" required>
 <option value="whatsapp">WhatsApp</option><option value="instagram">Instagram</option>
 <option value="indicacao">Indicação</option><option value="telefone">Telefone</option>
+<option value="google_ads">Google Ads (informado pelo cliente)</option>
+<option value="meta_ads">Anúncio Instagram/Facebook (informado)</option>
+<option value="site">Site (informado)</option>
 <option value="outro">Outra origem</option></select></div>
 <div><label for="manual-service">Serviço</label><select id="manual-service">
 <option value="A definir">A definir</option>
@@ -146,7 +151,10 @@ Cadastro de teste (não incluir nos relatórios)</label></div>
 <input type="checkbox" id="detail-test" style="width:18px;min-height:18px">
 Registro de teste (não incluir nos relatórios)</label></div>
 <div class="full"><label for="detail-notes">Observações internas</label><textarea id="detail-notes" rows="3" maxlength="600"></textarea></div></div>
-<details><summary>Dados da campanha</summary><p id="detail-campaign" class="muted"></p></details>
+<details><summary>Origem e dados de atribuição</summary>
+<p class="smallnote">A origem marcada por UTM ou ID de clique é um sinal técnico, não comprova sozinha a cobrança de anúncios nem que a conversa foi enviada. Origem informada pela equipe é declarativa.</p>
+<p id="detail-campaign" class="muted" style="white-space:pre-wrap;overflow-wrap:anywhere"></p>
+</details>
 <div class="actions"><a id="open-wa" class="primary" rel="noopener noreferrer" target="_blank">Abrir WhatsApp</a><button id="save" class="primary">Salvar alterações</button></div>
 <p id="detail-error" class="error" role="alert"></p>
 </section></div>
@@ -226,6 +234,8 @@ async function refreshInsights() {
     ].join("");
     $("insights-services").innerHTML=insightTable(result.byService,"Serviço");
     $("insights-channels").innerHTML=insightTable(result.byChannel,"Origem");
+    $("insights-campaigns").innerHTML=insightTable(result.byCampaign,"Campanha");
+    $("insights-ctas").innerHTML=insightTable(result.byCTA,"Botão / ação");
     $("insights-loss").innerHTML=result.lossReasons?.length
       ? '<p class="smallnote"><strong>Motivos de perda:</strong> '+
         result.lossReasons.map(x=>escapeHtml(x.name)+': '+x.count).join(' · ')+'</p>' : '';
@@ -273,7 +283,11 @@ function openLead(id) {
   $("detail-name").textContent=selected.name;
   $("detail-reference").textContent=selected.reference;
   $("detail-service").textContent=selected.service+" | "+selected.phone;
-  $("detail-origin").textContent="Origem: "+(selected.campaign?.utm_source || selected.source || "Não informada");
+  const attr=selected.attribution;
+  const origin=attr?.lastChannel || selected.campaign?.utm_source || selected.source || "Não informada";
+  $("detail-origin").textContent="Origem: "+origin+
+    (attr?.firstChannel && attr.firstChannel !== origin ? " | Primeira: "+attr.firstChannel : "")+
+    (selected.cta?.professional ? " | Profissional: "+selected.cta.professional : "");
   $("detail-status").value=selected.status;
   $("detail-date").value=selected.appointmentDate || "";
   $("detail-followup").value=selected.followUpDate || "";
@@ -283,7 +297,15 @@ function openLead(id) {
   $("detail-test").checked=selected.isTest===true;
   $("detail-notes").value=selected.notes || "";
   const campaign=selected.campaign||{};
-  $("detail-campaign").textContent=Object.entries(campaign).filter(([,v])=>v).map(([k,v])=>k+": "+v).join(" | ") || "Não identificada";
+  const touchDetail = (title,touch) => title+":\n"+
+    (Object.entries(touch || {}).filter(([,v])=>v).map(([k,v])=>k+": "+v).join("\n") || "Não identificado");
+  const attribution=selected.attribution;
+  const cta=selected.cta||{};
+  $("detail-campaign").textContent = attribution ?
+    [touchDetail("Primeira visita identificada",attribution.firstTouch),
+     touchDetail("Última visita identificada",attribution.lastTouch),
+     touchDetail("Origem do botão",cta)].join("\n\n") :
+    (Object.entries(campaign).filter(([,v])=>v).map(([k,v])=>k+": "+v).join(" | ") || "Não identificada");
   const phone=String(selected.phone||"").replace(/\D/g,"");
   $("open-wa").href="https://wa.me/"+(phone.startsWith("55")?phone:"55"+phone);
   $("detail-error").textContent="";
