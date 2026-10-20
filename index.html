@@ -1094,7 +1094,10 @@
             [/massoterapia|terapias/i, 'Massoterapia e Terapias']
         ];
         function normalizarServicoPatty(nome) {
-            return serviceMap.find(([matcher]) => matcher.test(nome))?.[1] || 'Cabelos e Cachos';
+            const texto = String(nome || '');
+            if (/cabeleireira|cabelo|alisamento|escova|cachos|penteado/i.test(texto)) return 'Cabelos e Cachos';
+            if (/nail|manicure|unha|reflexologia/i.test(texto)) return 'Nail Design';
+            return serviceMap.find(([matcher]) => matcher.test(texto))?.[1] || 'A definir';
         }
         function fecharCapturaServico() {
             capturaModal.hidden = true;
@@ -1105,6 +1108,9 @@
             capturaForm.reset();
             document.getElementById('patty-capture-status').textContent = '';
             document.getElementById('patty-capture-service').textContent = dados.serviceName;
+            document.getElementById('patty-capture-heading').textContent =
+                dados.area === 'equipe' ? 'Fale com a profissional pelo WhatsApp' :
+                dados.area === 'destaques' ? 'Gostou do resultado? Agende!' : 'Agendar pelo WhatsApp';
             capturaModal.hidden = false;
             document.getElementById('patty-capture-name').focus();
         }
@@ -1152,9 +1158,12 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         name: nome, phone: telefone,
-                        service: normalizarServicoPatty(dados.serviceName),
+                        service: normalizarServicoPatty(dados.serviceHint || dados.serviceName),
                         reference: dados.ref, campaign: pattyCampanha(),
-                        source: 'botao_servico',
+                        attribution: pattyAtribuicao(),
+                        source: dados.area === 'servicos' ? 'botao_servico' : 'botao_whatsapp',
+                        cta: {area: dados.area, id: dados.botao,
+                          professional: dados.profissional || '', reelId: dados.reelId || ''},
                         privacyAcknowledged: document.getElementById('patty-capture-privacy').checked,
                         website: document.getElementById('patty-capture-website').value
                     })
@@ -1163,8 +1172,8 @@
                 if (!resposta.ok || !resultado.ok) throw new Error(resultado.error || 'Falha ao salvar');
                 pattyEvento('crm_lead_saved', {
                     lead_reference: dados.ref,
-                    form_service: normalizarServicoPatty(dados.serviceName),
-                    lead_source: 'botao_servico'
+                    form_service: normalizarServicoPatty(dados.serviceHint || dados.serviceName),
+                    lead_source: dados.area === 'servicos' ? 'botao_servico' : 'botao_whatsapp'
                 });
                 status.textContent = 'Solicitação registrada! Confirme sua mensagem no WhatsApp.';
                 fecharCapturaServico();
@@ -1190,11 +1199,15 @@
                 const cardEquipe = link.closest('.team-card');
                 const area = cardServico ? 'servicos'
                     : cardEquipe ? 'equipe'
+                    : link.closest('#destaques') ? 'destaques'
                     : link.classList.contains('whatsapp-float') ? 'flutuante' : 'outros';
                 const card = cardServico || cardEquipe;
+                const profissional = cardEquipe ? (cardEquipe.querySelector('h3')?.textContent || '').trim() : '';
                 const servico = card ? (card.querySelector('h3')?.textContent || 'atendimento_geral').trim()
-                    : 'atendimento_geral';
+                    : area === 'destaques' && window.pattyUltimoReelLabel ? window.pattyUltimoReelLabel : 'Atendimento geral';
+                const serviceHint = cardEquipe ? (cardEquipe.querySelector('p')?.textContent || '') : servico;
                 const botao = cardServico ? 'botao_servico' : cardEquipe ? 'botao_profissional'
+                    : area === 'destaques' ? 'botao_videos'
                     : area === 'flutuante' ? 'botao_flutuante' : 'link_whatsapp';
                 const ref = pattyReferencia();
                 if (link.dataset.whatsappTextoOriginal === undefined) {
@@ -1202,18 +1215,30 @@
                 }
                 url.searchParams.set('text', link.dataset.whatsappTextoOriginal + '\n\nRef. atendimento: ' + ref);
                 link.href = url.toString();
-                // Em botões dos serviços, captar contato só se a pessoa optar por informar dados.
-                // O evento whatsapp_click ocorre quando ela prossegue, não ao abrir o formulário.
-                if (cardServico && !evt.ctrlKey && !evt.metaKey && !evt.shiftKey && !evt.altKey && evt.button === 0) {
+                // Qualquer CTA WhatsApp da página pode oferecer identificação opcional.
+                // Abertura do modal não é conversão nem conversa recebida.
+                if (!evt.ctrlKey && !evt.metaKey && !evt.shiftKey && !evt.altKey && evt.button === 0) {
                     evt.preventDefault();
                     pattyEvento('whatsapp_cta_open', {
                         whatsapp_area: area, whatsapp_servico: servico,
                         whatsapp_botao: botao, lead_reference: ref
                     });
-                    abrirCapturaServico({url: url.toString(), serviceName: servico, ref, area, botao});
+                    abrirCapturaServico({url: url.toString(), serviceName: servico,
+                        serviceHint, profissional, ref, area, botao,
+                        reelId: area === 'destaques' ? (window.pattyUltimoReelId || '') : ''});
                 } else {
                     registrarCliqueWhatsApp(area, servico, botao, ref);
                 }
+            } else if (['instagram.com','www.instagram.com','facebook.com','www.facebook.com',
+                         'tiktok.com','www.tiktok.com'].includes(url.hostname)) {
+                pattyEvento('social_outbound_click', {
+                    social_domain: url.hostname.slice(0,60), link_area:
+                      link.closest('#destaques') ? 'videos' : 'rodape'
+                });
+            } else if (url.hostname === 'www.google.com' && url.pathname.startsWith('/maps')) {
+                pattyEvento('maps_click', {link_area:'contato'});
+            } else if (url.hash && url.origin === window.location.origin) {
+                pattyEvento('site_navigation_click',{section: url.hash.replace('#','').slice(0,50)});
             } else if (url.protocol === 'tel:') {
                 pattyEvento('phone_click', {
                     phone_area: String(link.dataset.contactLocation || 'site').slice(0, 60),
@@ -1308,6 +1333,7 @@
                 const phone = document.getElementById('whatsapp').value.trim();
                 const ref = pattyReferencia();
                 const camp = pattyCampanha();
+                const attribution = pattyAtribuicao();
                 const alert = document.getElementById('patty-crm-alert');
                 const btn = agendamentoForm.querySelector('button[type="submit"]');
                 const msg = 'Olá, me chamo ' + nome + ', escolhi o serviço de *' + servico
@@ -1329,7 +1355,8 @@
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({
                             name: nome, phone, service: servico, reference: ref,
-                            campaign: camp, privacyAcknowledged: document.getElementById('privacy-ack').checked,
+                            campaign: camp, attribution, cta:{area:'hero',id:'form_agendamento'},
+                            privacyAcknowledged: document.getElementById('privacy-ack').checked,
                             website: document.getElementById('patty_site').value
                         })
                     });
