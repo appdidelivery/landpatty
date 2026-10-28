@@ -987,6 +987,21 @@
             });
         }
 
+        // Origem legível no WhatsApp: canal conhecido, sem afirmar que um clique foi pago quando não há evidência.
+        function pattyOrigemContato() {
+            const camp = pattyCampanha();
+            if (camp.gclid || camp.gbraid || camp.wbraid) return 'Google Ads (clique identificado)';
+            const source = String(camp.utm_source || '').replace(/[^a-zA-Z0-9_ -]/g, '').trim().slice(0, 40);
+            const medium = String(camp.utm_medium || '').replace(/[^a-zA-Z0-9_ -]/g, '').trim().slice(0, 40);
+            if (source) return source + (medium ? ' / ' + medium : '');
+            let referrer = '';
+            try { referrer = new URL(document.referrer).hostname.toLowerCase(); } catch (_) {}
+            if (referrer.includes('instagram.com')) return 'Instagram (referência)';
+            if (referrer.includes('facebook.com')) return 'Facebook (referência)';
+            if (referrer.startsWith('google.') || referrer.includes('.google.')) return 'Google (referência)';
+            return 'Site Patty (canal anterior não identificado)';
+        }
+
         // Mantém evento e parâmetros da tag WhatsApp atual, sem quebrar conversões existentes.
         function registrarCliqueWhatsApp(area, servico, botao, referencia) {
             pattyEvento('whatsapp_click', {
@@ -1019,7 +1034,7 @@
                 if (link.dataset.whatsappTextoOriginal === undefined) {
                     link.dataset.whatsappTextoOriginal = url.searchParams.get('text') || '';
                 }
-                url.searchParams.set('text', link.dataset.whatsappTextoOriginal + '\n\nRef. atendimento: ' + ref);
+                url.searchParams.set('text', link.dataset.whatsappTextoOriginal + '\n\nOrigem: ' + pattyOrigemContato() + '\nRef. atendimento: ' + ref);
                 link.href = url.toString();
                 registrarCliqueWhatsApp(area, servico, botao, ref);
             } else if (url.protocol === 'tel:') {
@@ -1126,7 +1141,7 @@
                     lead_reference: referencia
                 });
                 registrarCliqueWhatsApp('formulario', servico, 'form_agendamento', referencia);
-                mensagem += '\n\nRef. atendimento: ' + referencia;
+                mensagem += '\n\nOrigem: ' + pattyOrigemContato() + '\nRef. atendimento: ' + referencia;
                 window.open(`https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`, '_blank');
             });
             
