@@ -315,9 +315,6 @@
         .location-map iframe { width: 100%; height: 400px; border: none; display: block; }
         .location-info p { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px; }
         .route-link { display: inline-flex; align-items: center; gap: 8px; color: var(--burgundy); font-weight: 600; text-decoration: none; margin-top: 8px; }
-        .form-note { font-size: .77rem; line-height: 1.45; margin: 10px 0 0; color: rgba(255,255,255,.84); }
-        .contact-phone { display: flex; margin: 12px 0 6px; }
-        .contact-phone a { color: var(--burgundy); font-weight: 700; }
 
         footer { background-color: #1c1c1c; color: #aaa; padding: 80px 0 30px; }
         .footer-grid { display: grid; grid-template-columns: 1fr; gap: 40px; text-align: center; }
@@ -480,6 +477,25 @@
             .reels-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
         }
 
+    
+        /* Captura opcional, sem impedir atendimento direto no WhatsApp */
+        #patty-servico-modal[hidden] { display:none!important; }
+        #patty-servico-modal {position:fixed;inset:0;z-index:10050;background:rgba(20,9,15,.72);display:flex;justify-content:center;align-items:center;padding:16px;}
+        #patty-servico-modal .patty-capture-box{width:min(100%,440px);background:#fff;border-radius:15px;padding:24px;max-height:92vh;overflow-y:auto;box-shadow:0 18px 55px #0006;}
+        #patty-servico-modal h2{font-size:1.6rem;margin:0 0 10px;color:#801a39;}
+        #patty-servico-modal p{font-size:.92rem;line-height:1.4;margin:0 0 12px;color:#55444c;}
+        #patty-servico-modal label{display:block;font-size:.86rem;font-weight:600;color:#3a2630;margin:9px 0 4px;}
+        #patty-servico-modal input[type=text],#patty-servico-modal input[type=tel]{width:100%;border:1px solid #d8c5cc;padding:11px;border-radius:9px;font:inherit;}
+        #patty-servico-modal input[type=checkbox]{flex-shrink:0;width:19px;height:19px;margin-top:3px;}
+        #patty-servico-modal .patty-capture-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px;}
+        #patty-servico-modal button{border:1px solid #801a39;border-radius:8px;padding:10px 12px;font:inherit;cursor:pointer;}
+        #patty-servico-modal button[type=submit]{background:#801a39;color:#fff;font-weight:700;}
+        #patty-servico-modal button[type=button]{background:#fff;color:#801a39;}
+        #patty-servico-modal button:disabled{opacity:.6;cursor:wait;}
+        #patty-servico-modal a{color:#801a39;text-decoration:underline;}
+        #patty-servico-modal .patty-capture-close{float:right;}
+        #patty-servico-modal #patty-capture-status{margin-top:10px;font-size:.85rem;}
+
     </style>
 </head>
 <body>
@@ -519,8 +535,8 @@
                         <input type="text" id="nome" name="nome" autocomplete="name" toolparamdescription="Nome da pessoa que deseja agendar." placeholder="Como podemos te chamar?" required>
                     </div>
                     <div class="form-group">
-                        <label for="whatsapp">Seu WhatsApp (Opcional)</label>
-                        <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" toolparamdescription="WhatsApp opcional para retorno." placeholder="Ex: 48999998888">
+                        <label for="whatsapp">Seu WhatsApp para contato</label>
+                        <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" toolparamdescription="Número para retorno sobre o agendamento." placeholder="Ex: 48999998888" required minlength="10" maxlength="20">
                     </div>
                     <div class="form-group">
                         <label for="servico">Qual serviço você deseja?</label>
@@ -536,8 +552,15 @@
                             <option value="Massoterapia e Terapias">Massoterapia e Terapias</option>
                         </select>
                     </div>
+                    <div class="form-group" style="display:none" aria-hidden="true"><label for="patty_site">Site</label><input type="text" id="patty_site" name="website" tabindex="-1" autocomplete="off"></div>
+                    <div class="form-group" style="font-size:.88rem">
+                        <label style="display:flex;align-items:flex-start;gap:9px;font-weight:400">
+                            <input type="checkbox" id="privacy-ack" required style="width:19px;min-height:19px;flex-shrink:0;margin-top:3px">
+                            <span>Li o <a href="/privacidade.html" target="_blank" rel="noopener noreferrer" style="color:#fff;text-decoration:underline">aviso de privacidade</a> e estou ciente do uso dos dados para atender meu pedido de agendamento.</span>
+                        </label>
+                    </div>
+                    <p id="patty-crm-alert" class="form-note" role="status"></p>
                     <button type="submit" class="btn-submit">Agendar via WhatsApp</button>
-                    <p class="form-note">Ao continuar, o WhatsApp será aberto. Confirme o envio da mensagem para solicitar seu horário.</p>
                 </form>
             </div>
         </div>
@@ -893,7 +916,6 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             Segunda das 13:30h às 19h | terça a Sábado, das 09h às 19h
                         </p>
-                        <p class="contact-phone"><a href="tel:+5548988032478" data-contact-location="localizacao" aria-label="Ligar para o Patty Centro de Beleza">Telefone: (48) 98803-2478</a></p>
                         <a class="route-link" href="https://www.google.com/maps/dir/?api=1&destination=R.%20Pedro%20%C3%81lvares%20Cabral%2C%20244%2C%20Forquilhinhas%2C%20S%C3%A3o%20Jos%C3%A9%20-%20SC%2C%2088106-750" target="_blank" rel="noopener noreferrer" aria-label="Abrir rota para Patty Centro de Beleza no Google Maps">Abrir rota no Google Maps →</a>
                     </div>
                     <div class="location-map">
@@ -930,7 +952,6 @@
                 <div class="footer-col">
                     <h4>Contato</h4>
                     <p>R. Pedro Álvares Cabral, 244<br>Forquilhinhas, São José - SC</p>
-                    <p><a href="tel:+5548988032478" data-contact-location="rodape" aria-label="Ligar para o salão">Ligar: (48) 98803-2478</a></p>
                     <div class="social-icons-footer">
                         <a href="https://www.instagram.com/pattycentrodebeleza" target="_blank" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
                         <a href="https://www.facebook.com/share/1CaXGvfuWC" target="_blank" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
@@ -948,6 +969,32 @@
     <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20os%20servi%C3%A7os." class="whatsapp-float" target="_blank" aria-label="Fale Conosco pelo WhatsApp">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943s-.182-.15-.38-.25z"/></svg>
     </a>
+
+
+    <div id="patty-servico-modal" role="dialog" aria-modal="true" aria-labelledby="patty-capture-heading" hidden>
+      <div class="patty-capture-box">
+        <button type="button" class="patty-capture-close" id="patty-capture-close" aria-label="Fechar janela">✕</button>
+        <h2 id="patty-capture-heading">Agendar pelo WhatsApp</h2>
+        <p id="patty-capture-intro">Preencha dois dados para o salão acompanhar seu pedido e agilizar o contato.</p>
+        <form id="patty-capture-form">
+          <p><strong>Serviço:</strong> <span id="patty-capture-service">Atendimento</span></p>
+          <label for="patty-capture-name">Seu nome</label>
+          <input id="patty-capture-name" type="text" name="nome" autocomplete="name" required minlength="2" maxlength="120" placeholder="Como podemos chamar você?">
+          <label for="patty-capture-phone">Seu WhatsApp</label>
+          <input id="patty-capture-phone" type="tel" name="phone" autocomplete="tel" inputmode="tel" required minlength="10" maxlength="24" placeholder="DDD + número">
+          <input id="patty-capture-website" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="display:none">
+          <label style="display:flex;align-items:flex-start;gap:8px;font-weight:400;margin-top:12px;">
+            <input id="patty-capture-privacy" type="checkbox" required>
+            <span>Li o <a href="/privacidade.html" target="_blank" rel="noopener noreferrer">aviso de privacidade</a> e estou ciente do uso dos meus dados para atender meu pedido.</span>
+          </label>
+          <div class="patty-capture-actions">
+            <button type="submit" id="patty-capture-submit">Registrar e abrir WhatsApp</button>
+            <button type="button" id="patty-capture-skip">Ir direto ao WhatsApp</button>
+          </div>
+          <p id="patty-capture-status" role="status"></p>
+        </form>
+      </div>
+    </div>
 
     <script>
         // Eventos de intenção: não equivalem a mensagens recebidas ou agendamentos.
@@ -1012,6 +1059,107 @@
             });
         }
 
+
+        // Os cliques nos botões de serviço ainda não identificam uma pessoa.
+        // Só registramos um lead se a visitante fornecer nome/telefone e autorizar a finalidade.
+        let pattyServicoPendente = null;
+        const capturaModal = document.getElementById('patty-servico-modal');
+        const capturaForm = document.getElementById('patty-capture-form');
+        const serviceMap = [
+            [/cabelos|cachos/i, 'Cabelos e Cachos'],
+            [/nail|manicure/i, 'Nail Design'],
+            [/sobrancelhas|micro/i, 'Sobrancelhas e Micropigmentação'],
+            [/cílios|cilios|lash/i, 'Cílios'],
+            [/estética|estetica/i, 'Estética'],
+            [/maquiagem/i, 'Maquiagem'],
+            [/depilação|depilacao/i, 'Depilação'],
+            [/massoterapia|terapias/i, 'Massoterapia e Terapias']
+        ];
+        function normalizarServicoPatty(nome) {
+            return serviceMap.find(([matcher]) => matcher.test(nome))?.[1] || 'Cabelos e Cachos';
+        }
+        function fecharCapturaServico() {
+            capturaModal.hidden = true;
+            pattyServicoPendente = null;
+        }
+        function abrirCapturaServico(dados) {
+            pattyServicoPendente = dados;
+            capturaForm.reset();
+            document.getElementById('patty-capture-status').textContent = '';
+            document.getElementById('patty-capture-service').textContent = dados.serviceName;
+            capturaModal.hidden = false;
+            document.getElementById('patty-capture-name').focus();
+        }
+        function abrirWhatsAppCaptura({url, ref, serviceName, area, botao}, janela, nome, telefone) {
+            const destino = new URL(url);
+            if (nome) {
+                const original = destino.searchParams.get('text') || '';
+                destino.searchParams.set('text', original + '\nMeu nome: ' + nome +
+                    '\nWhatsApp para retorno: ' + telefone);
+            }
+            registrarCliqueWhatsApp(area, serviceName, botao, ref);
+            if (janela && !janela.closed) janela.location.href = destino.toString();
+            else window.location.assign(destino.toString());
+        }
+        document.getElementById('patty-capture-close').addEventListener('click', fecharCapturaServico);
+        capturaModal.addEventListener('click', evt => {
+            if (evt.target === capturaModal) fecharCapturaServico();
+        });
+        document.addEventListener('keydown', evt => {
+            if (evt.key === 'Escape' && !capturaModal.hidden) fecharCapturaServico();
+        });
+        document.getElementById('patty-capture-skip').addEventListener('click', () => {
+            if (!pattyServicoPendente) return;
+            const dados = pattyServicoPendente;
+            fecharCapturaServico();
+            // O atendimento direto continua disponível, sem cadastro obrigatório.
+            const janela = window.open('about:blank', '_blank');
+            abrirWhatsAppCaptura(dados, janela, '', '');
+        });
+        capturaForm.addEventListener('submit', async evt => {
+            evt.preventDefault();
+            if (!pattyServicoPendente || !capturaForm.reportValidity()) return;
+            const dados = pattyServicoPendente;
+            const nome = document.getElementById('patty-capture-name').value.trim();
+            const telefone = document.getElementById('patty-capture-phone').value.trim();
+            const status = document.getElementById('patty-capture-status');
+            const submit = document.getElementById('patty-capture-submit');
+            const janela = window.open('about:blank', '_blank');
+            if (janela) janela.document.body.textContent = 'Abrindo seu atendimento...';
+            submit.disabled = true;
+            status.textContent = 'Registrando sua solicitação...';
+            try {
+                const resposta = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        name: nome, phone: telefone,
+                        service: normalizarServicoPatty(dados.serviceName),
+                        reference: dados.ref, campaign: pattyCampanha(),
+                        source: 'botao_servico',
+                        privacyAcknowledged: document.getElementById('patty-capture-privacy').checked,
+                        website: document.getElementById('patty-capture-website').value
+                    })
+                });
+                const resultado = await resposta.json().catch(() => ({}));
+                if (!resposta.ok || !resultado.ok) throw new Error(resultado.error || 'Falha ao salvar');
+                pattyEvento('crm_lead_saved', {
+                    lead_reference: dados.ref,
+                    form_service: normalizarServicoPatty(dados.serviceName),
+                    lead_source: 'botao_servico'
+                });
+                status.textContent = 'Solicitação registrada! Confirme sua mensagem no WhatsApp.';
+                fecharCapturaServico();
+            } catch (_) {
+                // Não confundir clique com lead salvo, e não bloquear o contato com o salão.
+                pattyEvento('crm_capture_failed', {lead_reference: dados.ref, lead_source: 'botao_servico'});
+                status.textContent = 'Não foi possível confirmar o cadastro. Continue o atendimento pelo WhatsApp.';
+            } finally {
+                abrirWhatsAppCaptura(dados, janela, nome, telefone);
+                submit.disabled = false;
+            }
+        });
+
         // Captura links wa.me, inclusive clique via teclado e elementos SVG internos.
         document.addEventListener('click', (evt) => {
             const origem = evt.target instanceof Element ? evt.target : evt.target.parentElement;
@@ -1036,7 +1184,18 @@
                 }
                 url.searchParams.set('text', link.dataset.whatsappTextoOriginal + '\n\nOrigem: ' + pattyOrigemContato() + '\nRef. atendimento: ' + ref);
                 link.href = url.toString();
-                registrarCliqueWhatsApp(area, servico, botao, ref);
+                // Em botões dos serviços, captar contato só se a pessoa optar por informar dados.
+                // O evento whatsapp_click ocorre quando ela prossegue, não ao abrir o formulário.
+                if (cardServico && !evt.ctrlKey && !evt.metaKey && !evt.shiftKey && !evt.altKey && evt.button === 0) {
+                    evt.preventDefault();
+                    pattyEvento('whatsapp_cta_open', {
+                        whatsapp_area: area, whatsapp_servico: servico,
+                        whatsapp_botao: botao, lead_reference: ref
+                    });
+                    abrirCapturaServico({url: url.toString(), serviceName: servico, ref, area, botao});
+                } else {
+                    registrarCliqueWhatsApp(area, servico, botao, ref);
+                }
             } else if (url.protocol === 'tel:') {
                 pattyEvento('phone_click', {
                     phone_area: String(link.dataset.contactLocation || 'site').slice(0, 60),
@@ -1120,31 +1279,59 @@
                 }, { once:true });
             });
 
+            // O site continua encaminhando a cliente ao WhatsApp Business.
+            // O CRM salva o lead primeiro, sem publicar nome/telefone no GA4.
             const agendamentoForm = document.getElementById('agendamentoForm');
-            agendamentoForm.addEventListener('submit', function(event) {
+            agendamentoForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
-                const numeroWhatsApp = '5548988032478'; 
-                const nome = document.getElementById('nome').value;
+                if (!agendamentoForm.reportValidity()) return;
+                const nome = document.getElementById('nome').value.trim();
                 const servico = document.getElementById('servico').value;
-                const whatsappOpcional = document.getElementById('whatsapp').value;
-                
-                let mensagem = `Olá, me chamo ${nome}, escolhi o serviço de *${servico}* e gostaria de agendar um horário.`;
-                if(whatsappOpcional) { mensagem += ` Meu número para contato é ${whatsappOpcional}.`; }
-                
-                const referencia = pattyReferencia();
-                // Evento separado do clique para conhecer quais serviços são solicitados no formulário.
-                // Não representa atendimento confirmado nem armazena dados pessoais.
+                const phone = document.getElementById('whatsapp').value.trim();
+                const ref = pattyReferencia();
+                const camp = pattyCampanha();
+                const alert = document.getElementById('patty-crm-alert');
+                const btn = agendamentoForm.querySelector('button[type="submit"]');
+                const msg = 'Olá, me chamo ' + nome + ', escolhi o serviço de *' + servico
+                  + '* e gostaria de agendar um horário. Meu WhatsApp é ' + phone
+                  + '.\n\nOrigem: ' + pattyOrigemContato() + '\nRef. atendimento: ' + ref;
+                const waUrl = 'https://wa.me/5548988032478?text=' + encodeURIComponent(msg);
+                // Abre uma janela ainda no gesto do usuário; evita bloqueio após a chamada assíncrona.
+                const tab = window.open('about:blank', '_blank');
+                if (tab) tab.document.body.textContent = 'Preparando seu atendimento no WhatsApp...';
+                btn.disabled = true;
+                alert.textContent = 'Registrando sua solicitação...';
                 pattyEvento('form_agendamento_submit', {
-                    form_name: 'agendamento_hero',
-                    form_service: String(servico).slice(0, 100),
-                    form_has_phone: !!whatsappOpcional.trim(),
-                    lead_reference: referencia
+                    form_name: 'agendamento_hero', form_service: String(servico).slice(0, 100),
+                    form_has_phone: true, lead_reference: ref
                 });
-                registrarCliqueWhatsApp('formulario', servico, 'form_agendamento', referencia);
-                mensagem += '\n\nOrigem: ' + pattyOrigemContato() + '\nRef. atendimento: ' + referencia;
-                window.open(`https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`, '_blank');
+                try {
+                    const response = await fetch('/api/leads', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            name: nome, phone, service: servico, reference: ref,
+                            campaign: camp, privacyAcknowledged: document.getElementById('privacy-ack').checked,
+                            website: document.getElementById('patty_site').value
+                        })
+                    });
+                    const result = await response.json().catch(() => ({}));
+                    if (!response.ok || !result.ok) throw Error(result.error || 'CRM indisponível');
+                    pattyEvento('crm_lead_saved', {lead_reference: ref, form_service: String(servico).slice(0,100)});
+                    alert.textContent = 'Solicitação registrada. Confirme o envio da mensagem no WhatsApp.';
+                } catch (err) {
+                    // Não perder o atendimento mesmo se a API, Firebase ou API estiver indisponível.
+                    // O aviso é explícito: não contabilizar este lead como salvo no CRM.
+                    alert.textContent = 'O cadastro automático não foi confirmado. Continue no WhatsApp; o atendimento permanece disponível.';
+                    pattyEvento('crm_capture_failed', {lead_reference: ref, form_service: String(servico).slice(0,100)});
+                } finally {
+                    registrarCliqueWhatsApp('formulario', servico, 'form_agendamento', ref);
+                    if (tab && !tab.closed) tab.location.href = waUrl;
+                    else window.location.assign(waUrl);
+                    btn.disabled = false;
+                }
             });
-            
+
             let lastScrollTop = 0;
             const header = document.getElementById('mainHeader');
             window.addEventListener('scroll', function() {

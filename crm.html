@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>CRM | Patty Centro de Beleza</title>
+<style>
+:root{--wine:#801a39;--gold:#bd8c54;--bg:#f8f4f2;--line:#eadfdb;--muted:#6b5d62}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px/1.5 system-ui,-apple-system,Arial;color:#251a1e}button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{background:var(--wine);color:white;padding:16px max(20px,calc((100vw - 1150px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px}
+header strong{font-size:21px}header small{display:block;opacity:.82}main{max-width:1150px;margin:24px auto;padding:0 18px}
+.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 8px 22px #401a3020}
+.hidden{display:none!important}.login{max-width:390px;margin:9vh auto}.login h1{margin-top:0;font-size:25px}
+label{display:block;font-weight:600;margin:10px 0 5px}input,select,textarea{background:white;color:#261e22;width:100%;border:1px solid #cfbfc5;border-radius:9px;padding:10px;min-height:42px}
+input:focus,select:focus,textarea:focus{outline:2px solid #b88954}
+button.primary{border:0;background:var(--wine);color:white;border-radius:9px;padding:11px 16px;font-weight:700}
+button.secondary{background:white;border:1px solid var(--line);color:var(--wine);border-radius:9px;padding:9px 14px}
+button:disabled{opacity:.55;cursor:wait}.error{color:#b32c46;min-height:20px}.muted{color:var(--muted)}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:0 0 20px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.metric{background:white;border:1px solid var(--line);border-radius:13px;padding:14px}.metric strong{display:block;font-size:27px}.metric span{color:var(--muted);font-size:13px}
+.filters{display:flex;gap:10px;align-items:center;margin-bottom:15px;flex-wrap:wrap}.filters input{max-width:340px}.filters select{max-width:220px}
+.lead-list{display:grid;gap:10px}.lead{border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.lead h3{margin:0 0 4px;font-size:16px}.lead p{margin:0;color:var(--muted);font-size:13px}
+.tag{background:#faedf1;color:var(--wine);font-size:12px;padding:5px 9px;border-radius:30px;font-weight:700}
+.lead button{background:white;border:1px solid var(--wine);border-radius:9px;color:var(--wine);padding:8px 12px;font-weight:600}
+.drawer{position:fixed;inset:0;background:#21151a99;display:flex;justify-content:end;z-index:10}
+.drawer .panel{border-radius:16px 0 0 16px;height:100%;width:min(100%,470px);overflow:auto}
+.drawer-top{display:flex;align-items:start;justify-content:space-between;gap:10px}.drawer h2{margin-top:0}.drawer small{color:var(--muted)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}
+details{border:1px solid var(--line);padding:10px;border-radius:10px;margin:14px 0}summary{cursor:pointer}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
+@media(max-width:700px){.cards{grid-template-columns:repeat(2,1fr)}header strong{font-size:17px}main{margin:15px auto}.fields{grid-template-columns:1fr}.drawer .panel{border-radius:0}}
+
+.insights-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.insights-header h2{margin:0;font-size:21px}
+.insights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.insights-grid .metric{background:var(--bg)}
+.insights-tables{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.insights-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.insights-table th,.insights-table td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}
+.insights-table th:last-child,.insights-table td:last-child{text-align:right}
+.insights-warning{font-size:13px;color:#9d4451}
+.smallnote{font-size:12px;color:var(--muted)}
+.insights-list{max-height:300px;overflow:auto}
+@media(max-width:850px){.insights-grid{grid-template-columns:repeat(2,1fr)}.insights-tables{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div><strong>Patty | Gestão de Leads</strong><small>Painel interno de atendimentos</small></div><button id="logout" class="secondary hidden">Sair</button></header>
+<main>
+<section id="login-panel" class="panel login"><h1>Acesso da equipe</h1><p class="muted">Somente pessoas autorizadas pela administração do salão.</p>
+<form id="login-form"><label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required>
+<label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required>
+<p id="login-error" class="error" role="alert"></p><button class="primary" type="submit">Entrar no CRM</button></form></section>
+<section id="verify-panel" class="panel login hidden">
+<h1>Confirme seu e-mail</h1>
+<p class="muted">Para proteger os dados das clientes, confirme o endereço de e-mail antes de acessar o painel. Verifique também a caixa de spam.</p>
+<p><strong id="verify-email"></strong></p>
+<div class="actions"><button id="verify-send" class="primary" type="button">Enviar e-mail de confirmação</button><button id="verify-retry" class="secondary" type="button">Já confirmei — atualizar acesso</button></div>
+<p id="verify-info" class="muted" role="status"></p>
+</section>
+<section id="app" class="hidden">
+<div class="toolbar"><div><h1 style="margin:0">Contatos e agendamentos</h1><p class="muted" style="margin:0">Leads do site e contatos cadastrados pela equipe</p></div><div class="actions" style="margin:0"><button id="manual-add" class="primary">+ Novo lead</button><button id="reload" class="secondary">Atualizar</button></div></div>
+<div class="cards">
+<div class="metric"><span>Registros carregados</span><strong id="count">0</strong></div>
+<div class="metric"><span>Novos</span><strong id="new">0</strong></div>
+<div class="metric"><span>Agendados</span><strong id="booked">0</strong></div>
+<div class="metric"><span>Atendidos</span><strong id="attended">0</strong></div>
+</div>
+<section id="insights-panel" class="panel" style="margin:0 0 20px">
+<div class="insights-header">
+ <div><h2>Resultados comerciais</h2><p class="smallnote">Agendamentos e receita registrados pela equipe — não são cliques de anúncios</p></div>
+ <div><label for="insight-days" style="margin:0">Leads captados em</label><select id="insight-days" style="min-width:140px">
+  <option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option>
+ </select></div>
+</div>
+<p id="insights-notice" class="muted" role="status">Carregando indicadores...</p>
+<div class="insights-grid" id="insights-cards"></div>
+<div class="insights-tables">
+ <div><h3>Por serviço</h3><div id="insights-services" class="insights-list"></div></div>
+ <div><h3>Por origem</h3><div id="insights-channels" class="insights-list"></div></div>
+</div>
+<div id="insights-loss"></div>
+<p class="smallnote">Conversão = leads captados no período cujo estágio atual é Agendado ou Atendido. Receita realizada = valores informados em atendimentos marcados como concluídos no período, independentemente de quando o lead foi captado. Receita futura = soma dos valores previstos em agendamentos confirmados para os próximos 30 dias; não inclui agendamentos sem preço e não é garantia de recebimento. Registros marcados como teste não entram nos indicadores. Google Ads só é identificado quando a origem contém parâmetros de campanha compatíveis; cliques no GA4 não são leads.</p>
+</section>
+<div class="filters"><input id="query" placeholder="Buscar nome, telefone ou serviço" aria-label="Buscar contatos">
+<select id="filter" aria-label="Filtrar por status"><option value="">Todos os status</option><option value="novo">Novos</option><option value="em_contato">Em contato</option><option value="agendado">Agendados</option><option value="atendido">Atendidos</option><option value="perdido">Perdidos</option><option value="followup_due">Retornos para hoje/atrasados</option></select></div>
+<p id="notice" class="muted" role="status"></p><div class="lead-list" id="leads"></div>
+<p style="margin:18px 0"><button id="more" class="secondary hidden">Carregar mais leads</button></p>
+<p class="footnote">Os indicadores acima resumem apenas os registros carregados. Dados pessoais não são enviados ao GA4.</p>
+</section>
+</main>
+<div id="manual-drawer" class="drawer hidden" role="dialog" aria-modal="true" aria-labelledby="manual-title">
+<section class="panel">
+<div class="drawer-top"><h2 id="manual-title">Novo lead</h2><button id="manual-close" class="secondary" type="button">Fechar</button></div>
+<p class="muted">Cadastre contatos recebidos pelo WhatsApp, Instagram, telefone ou indicação. Não confundir com cliques anônimos no site.</p>
+<form id="manual-form" class="fields">
+<div class="full"><label for="manual-name">Nome *</label><input id="manual-name" autocomplete="name" maxlength="120" required minlength="2"></div>
+<div class="full"><label for="manual-phone">WhatsApp ou telefone *</label><input id="manual-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="DDD + número" required></div>
+<div><label for="manual-source">Origem *</label><select id="manual-source" required>
+<option value="whatsapp">WhatsApp</option><option value="instagram">Instagram</option>
+<option value="indicacao">Indicação</option><option value="telefone">Telefone</option>
+<option value="outro">Outra origem</option></select></div>
+<div><label for="manual-service">Serviço</label><select id="manual-service">
+<option value="A definir">A definir</option>
+<option value="Cabelos e Cachos">Cabelos e Cachos</option>
+<option value="Nail Design">Manicure / Nail Design</option>
+<option value="Sobrancelhas e Micropigmentação">Sobrancelhas</option>
+<option value="Estética">Estética</option><option value="Cílios">Cílios</option>
+<option value="Maquiagem">Maquiagem</option><option value="Depilação">Depilação</option>
+<option value="Massoterapia e Terapias">Massoterapia</option>
+</select></div>
+<div class="full"><label for="manual-status">Etapa do atendimento</label><select id="manual-status">
+<option value="novo">Novo lead</option><option value="em_contato">Em conversa</option>
+<option value="agendado">Agendado</option><option value="atendido">Atendido</option>
+<option value="perdido">Perdido</option></select></div>
+<div><label for="manual-date">Data agendada</label><input id="manual-date" type="date"></div>
+<div><label for="manual-followup">Próximo retorno</label><input id="manual-followup" type="date"></div>
+<div><label for="manual-estimate">Valor previsto (R$)</label><input id="manual-estimate" inputmode="decimal" placeholder="Ex: 120,00"></div>
+<div><label for="manual-revenue">Valor recebido (R$)</label><input id="manual-revenue" inputmode="decimal" placeholder="Ex: 120,00"></div>
+<div class="full"><label style="display:flex;align-items:center;gap:8px">
+<input id="manual-test" type="checkbox" style="width:18px;min-height:18px">
+Cadastro de teste (não incluir nos relatórios)</label></div>
+<div class="full"><label for="manual-notes">Observações</label><textarea id="manual-notes" rows="3" maxlength="600" placeholder="O que o cliente perguntou? O que falta para agendar?"></textarea></div>
+<div class="full"><p id="manual-error" class="error" role="alert"></p>
+<button id="manual-save" class="primary" type="submit">Salvar contato</button></div>
+</form>
+</section></div>
+<div id="drawer" class="drawer hidden"><section class="panel">
+<div class="drawer-top"><div><h2 id="detail-name">Contato</h2><small id="detail-reference"></small></div><button class="secondary" id="close">Fechar</button></div>
+<p id="detail-service"></p><p id="detail-origin" class="muted"></p><div class="fields">
+<div class="full"><label for="detail-status">Situação</label><select id="detail-status"><option value="novo">Novo lead</option><option value="em_contato">Em conversa</option><option value="agendado">Agendado</option><option value="atendido">Atendido</option><option value="perdido">Perdido</option></select></div>
+<div><label for="detail-date">Data agendada</label><input type="date" id="detail-date"></div>
+<div><label for="detail-followup">Próximo retorno</label><input type="date" id="detail-followup"></div>
+<div><label for="detail-estimate">Valor previsto (R$)</label><input id="detail-estimate" inputmode="decimal" placeholder="Ex: 120,00"></div>
+<div><label for="detail-revenue">Valor efetivamente recebido (R$)</label><input id="detail-revenue" inputmode="decimal" placeholder="Ex: 120,00"></div>
+<div><label for="detail-loss">Motivo da perda</label><select id="detail-loss">
+<option value="">Não informado</option><option value="preco">Preço</option>
+<option value="horario">Horário</option><option value="sem_resposta">Sem resposta</option>
+<option value="desistencia">Desistência</option><option value="outro">Outro</option></select></div>
+<div class="full"><label style="display:flex;align-items:center;gap:8px">
+<input type="checkbox" id="detail-test" style="width:18px;min-height:18px">
+Registro de teste (não incluir nos relatórios)</label></div>
+<div class="full"><label for="detail-notes">Observações internas</label><textarea id="detail-notes" rows="3" maxlength="600"></textarea></div></div>
+<details><summary>Dados da campanha</summary><p id="detail-campaign" class="muted"></p></details>
+<div class="actions"><a id="open-wa" class="primary" rel="noopener noreferrer" target="_blank">Abrir WhatsApp</a><button id="save" class="primary">Salvar alterações</button></div>
+<p id="detail-error" class="error" role="alert"></p>
+</section></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, reload } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+const $ = id => document.getElementById(id);
+let auth, data = [], nextCursor = null, selected = null, loading = false;
+const statuses = {novo:"Novo",em_contato:"Em conversa",agendado:"Agendado",atendido:"Atendido",perdido:"Perdido"};
+const escapeHtml = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = v => v == null ? "" : (v/100).toFixed(2).replace(".",",");
+async function request(url, options = {}) {
+  const user = auth?.currentUser;
+  if (!user) throw new Error("Sessão expirada");
+  const token = await user.getIdToken();
+  const response = await fetch(url, { ...options, headers: {
+    "Authorization":"Bearer " + token,
+    ...(options.body ? {"Content-Type":"application/json"} : {})
+  }});
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || "Não foi possível consultar o CRM");
+  return result;
+}
+async function load(reset) {
+  if (loading) return; loading = true;
+  $("notice").textContent = "Carregando contatos...";
+  try {
+    if (reset) {data=[];nextCursor=null}
+    const url = "/api/crm/leads" + (nextCursor ? "?cursor=" + encodeURIComponent(nextCursor) : "");
+    const response = await request(url);
+    data.push(...response.leads);
+    nextCursor = response.nextCursor;
+    $("more").classList.toggle("hidden", !nextCursor);
+    $("notice").textContent = data.length ? "Contatos recebidos. Clique em Abrir para atualizar o atendimento." : "Nenhum contato cadastrado ainda.";
+    render();
+    if(reset) refreshInsights();
+  } catch(e) {$("notice").textContent = e.message;}
+  finally {loading=false}
+}
+// Relatórios agregados: a API retorna apenas totais, não dados pessoais.
+const currency = cents => Number.isSafeInteger(cents) ?
+  (cents / 100).toLocaleString("pt-BR", {style:"currency",currency:"BRL"}) : "Não informado";
+function insightMetric(label,value,note) {
+  return '<div class="metric"><span>'+escapeHtml(label)+'</span><strong>'+escapeHtml(value)+
+    '</strong><span>'+escapeHtml(note||"")+'</span></div>';
+}
+function insightTable(items, label) {
+  if(!items?.length) return '<p class="smallnote">Sem registros no período.</p>';
+  return '<table class="insights-table"><thead><tr><th>'+escapeHtml(label)+
+    '</th><th>Leads</th><th>Agend.</th><th>Receita</th></tr></thead><tbody>'+
+    items.map(x=>'<tr><td>'+escapeHtml(x.name)+'</td><td>'+x.leads+
+      '</td><td>'+x.agendados+'</td><td>'+escapeHtml(currency(x.revenueCents))+
+      '</td></tr>').join('')+'</tbody></table>';
+}
+async function refreshInsights() {
+  $("insights-notice").textContent="Atualizando resultados...";
+  try {
+    const days=$("insight-days").value==="30"?30:7;
+    const result=await request("/api/crm/insights?days="+days);
+    const c=result.cohort, a=result.agendaNext30Days, p=result.periodActivity;
+    $("insights-cards").innerHTML=[
+      insightMetric("Leads identificados",c.leads,days+" dias, excluindo testes"),
+      insightMetric("Agendados e atendidos",c.agendados+c.atendidos,
+        c.agendamentoRatePercent.toLocaleString("pt-BR")+"% dos leads do período"),
+      insightMetric("Agendamentos registrados",p.bookingsRecorded,
+        "Confirmações registradas nos últimos "+days+" dias"),
+      insightMetric("Atendimentos concluídos",p.attended,
+        p.withoutValue+" sem valor recebido informado"),
+      insightMetric("Receita registrada no período",currency(p.realizedRevenueCents),
+        "Atendimentos marcados como concluídos nos últimos "+days+" dias"),
+      insightMetric("Ticket médio realizado",currency(p.averageTicketCents),
+        p.withValue+" atendimentos com valor informado"),
+      insightMetric("Próximos 30 dias: valor previsto",currency(a.scheduledValueCents),
+        a.appointments+" agendamentos; "+a.withoutEstimate+" sem preço estimado"),
+      insightMetric("Retornos pendentes",result.dueFollowUps || 0,
+        "Leads abertos com retorno previsto para hoje ou antes")
+    ].join("");
+    $("insights-services").innerHTML=insightTable(result.byService,"Serviço");
+    $("insights-channels").innerHTML=insightTable(result.byChannel,"Origem");
+    $("insights-loss").innerHTML=result.lossReasons?.length
+      ? '<p class="smallnote"><strong>Motivos de perda:</strong> '+
+        result.lossReasons.map(x=>escapeHtml(x.name)+': '+x.count).join(' · ')+'</p>' : '';
+    $("insights-notice").textContent = result.partial ?
+      "Relatório parcial: limite de registros atingido; solicite exportação para análise completa." :
+      "Indicadores atualizados. "+c.perdidos+" leads perdidos no período.";
+  } catch(e) { $("insights-notice").textContent="Não foi possível carregar os indicadores: "+e.message; }
+}
+$("insight-days").onchange=refreshInsights;
+function localToday() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"
+  }).formatToParts(new Date());
+  const p = k => parts.find(x=>x.type===k)?.value;
+  return p("year")+"-"+p("month")+"-"+p("day");
+}
+function needsFollowUp(d, today) {
+  return !!d.followUpDate && d.followUpDate <= today &&
+    ["novo","em_contato"].includes(d.status) && !d.isTest;
+}
+function render() {
+  const q = $("query").value.toLowerCase(), st = $("filter").value, today=localToday();
+  const shown = data.filter(d =>
+    (!st || (st==="followup_due" ? needsFollowUp(d,today) : d.status===st)) &&
+    [d.name,d.phone,d.service,d.reference].some(v=>String(v||"").toLowerCase().includes(q)));
+  $("count").textContent = data.length;
+  $("new").textContent = data.filter(d=>d.status==="novo").length;
+  $("booked").textContent = data.filter(d=>d.status==="agendado").length;
+  $("attended").textContent = data.filter(d=>d.status==="atendido").length;
+  $("leads").innerHTML = shown.map(d=>{
+    const follow=needsFollowUp(d,today) ? '<p style="color:#a02445;font-weight:700">Retorno pendente: '+escapeHtml(d.followUpDate)+'</p>' :
+      d.followUpDate ? '<p>Retorno: '+escapeHtml(d.followUpDate)+'</p>' : '';
+    const test=d.isTest ? ' · TESTE (fora dos relatórios)' : '';
+    return '<article class="lead"><div><h3>'+escapeHtml(d.name)+'</h3><p>'+escapeHtml(d.service)+' · '+
+      escapeHtml(d.phone)+'</p><p>'+escapeHtml(d.createdAt?.slice(0,10)||"")+' · '+
+      escapeHtml(d.campaign?.utm_source || d.source)+escapeHtml(test)+'</p>'+follow+
+      '</div><div style="text-align:right"><div class="tag">'+escapeHtml(statuses[d.status]||d.status)+
+      '</div><button type="button" data-id="'+escapeHtml(d.id)+
+      '" style="margin-top:9px">Abrir</button></div></article>';
+  }).join("");
+  $("leads").querySelectorAll("[data-id]").forEach(b=>b.addEventListener("click",()=>openLead(b.dataset.id)));
+}
+function openLead(id) {
+  selected=data.find(d=>d.id===id); if(!selected)return;
+  $("detail-name").textContent=selected.name;
+  $("detail-reference").textContent=selected.reference;
+  $("detail-service").textContent=selected.service+" | "+selected.phone;
+  $("detail-origin").textContent="Origem: "+(selected.campaign?.utm_source || selected.source || "Não informada");
+  $("detail-status").value=selected.status;
+  $("detail-date").value=selected.appointmentDate || "";
+  $("detail-followup").value=selected.followUpDate || "";
+  $("detail-revenue").value=money(selected.revenueCents);
+  $("detail-estimate").value=money(selected.estimatedRevenueCents);
+  $("detail-loss").value=selected.lostReason || "";
+  $("detail-test").checked=selected.isTest===true;
+  $("detail-notes").value=selected.notes || "";
+  const campaign=selected.campaign||{};
+  $("detail-campaign").textContent=Object.entries(campaign).filter(([,v])=>v).map(([k,v])=>k+": "+v).join(" | ") || "Não identificada";
+  const phone=String(selected.phone||"").replace(/\D/g,"");
+  $("open-wa").href="https://wa.me/"+(phone.startsWith("55")?phone:"55"+phone);
+  $("detail-error").textContent="";
+  $("drawer").classList.remove("hidden");
+}
+// Cadastro manual: somente usuários autenticados e autorizados no backend.
+$("manual-add").onclick=()=>{
+  $("manual-error").textContent="";
+  $("manual-form").reset();
+  $("manual-drawer").classList.remove("hidden");
+  $("manual-name").focus();
+};
+$("manual-close").onclick=()=>$("manual-drawer").classList.add("hidden");
+$("manual-drawer").addEventListener("click", e=>{if(e.target===$("manual-drawer"))$("manual-close").click();});
+const moneyToCents = value => {
+  const s = value.trim();
+  if (!s) return null;
+  const normalized = s.replace(/\s/g,"").replace(/\./g,"").replace(",",".");
+  if (!/^\d+(\.\d{1,2})?$/.test(normalized)) throw Error("Valor inválido. Exemplo: 120,00.");
+  const cents = Math.round(Number(normalized)*100);
+  if (!Number.isSafeInteger(cents)||cents>100000000) throw Error("Valor fora do limite permitido.");
+  return cents;
+};
+$("manual-form").onsubmit=async event=>{
+  event.preventDefault();
+  if (!$("manual-form").reportValidity()) return;
+  $("manual-error").textContent="";
+  $("manual-save").disabled=true;
+  try {
+    const status = $("manual-status").value;
+    const appointmentDate = $("manual-date").value || null;
+    const revenueCents = moneyToCents($("manual-revenue").value);
+    if(status==="agendado" && !appointmentDate)throw Error("Informe a data para o agendamento.");
+    if(status==="atendido" && revenueCents===null)throw Error("Informe o valor recebido, mesmo que seja zero.");
+    await request("/api/crm/leads",{method:"POST",body:JSON.stringify({
+      name:$("manual-name").value.trim(), phone:$("manual-phone").value.trim(),
+      service:$("manual-service").value, source:$("manual-source").value,
+      status, appointmentDate, followUpDate:$("manual-followup").value||null,
+      revenueCents,estimatedRevenueCents:moneyToCents($("manual-estimate").value),
+      isTest:$("manual-test").checked,
+      notes:$("manual-notes").value
+    })});
+    $("manual-close").click();
+    await load(true);
+  }catch(e){$("manual-error").textContent=e.message}
+  finally{$("manual-save").disabled=false}
+};
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&!$("manual-drawer").classList.contains("hidden"))$("manual-close").click();
+});
+$("close").onclick=()=>{$("drawer").classList.add("hidden");selected=null};
+$("drawer").addEventListener("click",e=>{if(e.target===$("drawer"))$("close").click()});
+$("save").onclick=async()=>{
+  if(!selected)return;
+  $("save").disabled=true;
+  try {
+    const revenueCents = moneyToCents($("detail-revenue").value);
+    const estimatedRevenueCents = moneyToCents($("detail-estimate").value);
+    await request("/api/crm/leads", {method:"PATCH",body:JSON.stringify({
+      id:selected.id,status:$("detail-status").value,
+      appointmentDate:$("detail-date").value||null,
+      followUpDate:$("detail-followup").value||null,
+      revenueCents,estimatedRevenueCents,
+      lostReason:$("detail-loss").value || null,
+      isTest:$("detail-test").checked,
+      notes:$("detail-notes").value
+    })});
+    $("close").click(); await load(true);
+  } catch(e){$("detail-error").textContent=e.message}
+  finally{$("save").disabled=false}
+};
+$("query").oninput=render;$("filter").onchange=render;
+$("reload").onclick=()=>load(true);$("more").onclick=()=>load(false);
+$("logout").onclick=()=>signOut(auth);
+$("verify-send").onclick=async()=>{
+  $("verify-send").disabled=true;
+  try{
+    await sendEmailVerification(auth.currentUser);
+    $("verify-info").textContent="Enviamos um link de confirmação. Abra seu e-mail, confirme e depois clique em 'Já confirmei'.";
+  }catch(_){
+    $("verify-info").textContent="Não foi possível enviar o link. Aguarde alguns minutos e tente novamente.";
+  }finally{$("verify-send").disabled=false}
+};
+$("verify-retry").onclick=async()=>{
+  $("verify-retry").disabled=true;
+  try {
+    await reload(auth.currentUser);
+    if(auth.currentUser.emailVerified) {
+      await auth.currentUser.getIdToken(true);
+      $("verify-panel").classList.add("hidden");
+      $("app").classList.remove("hidden");
+      await load(true);
+    } else $("verify-info").textContent="O e-mail ainda não está confirmado. Verifique sua caixa de entrada.";
+  }catch(_){$("verify-info").textContent="Não foi possível conferir agora. Tente novamente."}
+  finally{$("verify-retry").disabled=false}
+};
+$("login-form").onsubmit=async e=>{
+  e.preventDefault(); $("login-error").textContent="";
+  try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value)}
+  catch(_) {$("login-error").textContent="Não foi possível entrar. Verifique o acesso com a administração."}
+};
+(async()=>{
+  try{
+    const response=await fetch("/api/config",{cache:"no-store"});
+    if(!response.ok)throw Error("Configuração não disponível");
+    const config=await response.json();
+    if(!config.firebase?.apiKey||!config.firebase?.projectId)throw Error("Aguardando configuração do Firebase");
+    auth=getAuth(initializeApp(config.firebase));
+    onAuthStateChanged(auth,async user=>{
+      const needsVerification = !!user && !user.emailVerified;
+      $("login-panel").classList.toggle("hidden",!!user);
+      $("verify-panel").classList.toggle("hidden",!needsVerification);
+      $("app").classList.toggle("hidden",!user || needsVerification);
+      $("logout").classList.toggle("hidden",!user);
+      if(needsVerification)$("verify-email").textContent=user.email||"";
+      if(user && !needsVerification)await load(true);
+    });
+  }catch(e){$("login-error").textContent=e.message}
+})();
+</script>
+</body>
+</html>
