@@ -1034,6 +1034,21 @@
             });
         }
 
+        // Origem legível no WhatsApp: canal conhecido, sem afirmar que um clique foi pago quando não há evidência.
+        function pattyOrigemContato() {
+            const camp = pattyCampanha();
+            if (camp.gclid || camp.gbraid || camp.wbraid) return 'Google Ads (clique identificado)';
+            const source = String(camp.utm_source || '').replace(/[^a-zA-Z0-9_ -]/g, '').trim().slice(0, 40);
+            const medium = String(camp.utm_medium || '').replace(/[^a-zA-Z0-9_ -]/g, '').trim().slice(0, 40);
+            if (source) return source + (medium ? ' / ' + medium : '');
+            let referrer = '';
+            try { referrer = new URL(document.referrer).hostname.toLowerCase(); } catch (_) {}
+            if (referrer.includes('instagram.com')) return 'Instagram (referência)';
+            if (referrer.includes('facebook.com')) return 'Facebook (referência)';
+            if (referrer.startsWith('google.') || referrer.includes('.google.')) return 'Google (referência)';
+            return 'Site Patty (canal anterior não identificado)';
+        }
+
         // Mantém evento e parâmetros da tag WhatsApp atual, sem quebrar conversões existentes.
         function registrarCliqueWhatsApp(area, servico, botao, referencia) {
             pattyEvento('whatsapp_click', {
@@ -1167,7 +1182,7 @@
                 if (link.dataset.whatsappTextoOriginal === undefined) {
                     link.dataset.whatsappTextoOriginal = url.searchParams.get('text') || '';
                 }
-                url.searchParams.set('text', link.dataset.whatsappTextoOriginal + '\n\nRef. atendimento: ' + ref);
+                url.searchParams.set('text', link.dataset.whatsappTextoOriginal + '\n\nOrigem: ' + pattyOrigemContato() + '\nRef. atendimento: ' + ref);
                 link.href = url.toString();
                 // Em botões dos serviços, captar contato só se a pessoa optar por informar dados.
                 // O evento whatsapp_click ocorre quando ela prossegue, não ao abrir o formulário.
@@ -1279,7 +1294,7 @@
                 const btn = agendamentoForm.querySelector('button[type="submit"]');
                 const msg = 'Olá, me chamo ' + nome + ', escolhi o serviço de *' + servico
                   + '* e gostaria de agendar um horário. Meu WhatsApp é ' + phone
-                  + '.\n\nRef. atendimento: ' + ref;
+                  + '.\n\nOrigem: ' + pattyOrigemContato() + '\nRef. atendimento: ' + ref;
                 const waUrl = 'https://wa.me/5548988032478?text=' + encodeURIComponent(msg);
                 // Abre uma janela ainda no gesto do usuário; evita bloqueio após a chamada assíncrona.
                 const tab = window.open('about:blank', '_blank');
